@@ -1,0 +1,48 @@
+{
+  "type": "_menu",
+  "elements": [
+    {
+      "type": "_cursor",
+      "elements": [
+        {
+          "type": "_pointer",
+          "image": "src/resources/images/cursor_pointer02.png"
+        },
+        {
+          "type": "_hand",
+          "image": "src/resources/images/cursor_hand02.png"
+        }
+      ],
+      "flags": []
+    },
+    {
+      "type": "_staticImage",
+      "xsize": 0.9,
+      "ysize": 0.3,
+      "xpos": 0.05,
+      "ypos": 0.1,
+      "image": "src/resources/images/Royal_Jaguar_Title.png",
+      "flags": []
+    },
+    {
+      "type": "_button",
+      "xsize": 0.2,
+      "ysize": 0.1,
+      "xpos": 0.4,
+      "ypos": 0.5,
+      "image": "src/resources/images/start_game.png",
+      "function": ["_start_game", "src/resources/data/StartGame.json"],
+      "flags": []
+    },
+    {
+      "type": "_button",
+      "xsize": 0.1,
+      "ysize": 0.1,
+      "xpos": 0.45,
+      "ypos": 0.7,
+      "image": "src/resources/images/quit_game.png",
+      "function": ["_quit_game"],
+      "flags": []
+    }
+  ]
+}

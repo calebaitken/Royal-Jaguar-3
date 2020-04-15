@@ -1,0 +1,13 @@
+{
+  "type": "_mouse",
+  "elements": [
+    {
+      "type": "_pointer",
+      "image": "src/resources/images/cursor_pointer.cur"
+    },
+    {
+      "type": "_hand",
+      "image": "src/resources/images/cursor_hand.cur"
+    }
+  ]
+}
