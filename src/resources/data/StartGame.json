@@ -16,22 +16,23 @@
       "flags": []
     },
     {
-      "type": "_staticImage",
-      "xsize": 0.9,
-      "ysize": 0.3,
-      "xpos": 0.05,
-      "ypos": 0.1,
-      "image": "src/resources/images/Royal_Jaguar_Title.png",
+      "type": "_button",
+      "xsize": 0.1,
+      "ysize": 0.1,
+      "xpos": 0.45,
+      "ypos": 0.3,
+      "image": "src/resources/images/host_game.png",
+      "function": ["_load_scene", "src/resources/data/HostGame.json"],
       "flags": []
     },
     {
       "type": "_button",
-      "xsize": 0.2,
+      "xsize": 0.1,
       "ysize": 0.1,
-      "xpos": 0.4,
+      "xpos": 0.45,
       "ypos": 0.5,
-      "image": "src/resources/images/start_game.png",
-      "function": ["_start_game", "src/resources/data/StartGame.json"],
+      "image": "src/resources/images/join_game.png",
+      "function": ["_load_scene", "src/resources/data/JoinGame.json"],
       "flags": []
     },
     {

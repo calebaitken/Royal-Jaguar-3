@@ -7,6 +7,7 @@ include_directories(include/glm-master/include)
 include_directories(include/glfw-3.3.2/include)
 include_directories(include/SOIL-master/include)
 include_directories(include/json-develop/include)
+include_directories(include/Royal-Jaguar-3/include)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -27,8 +28,8 @@ set(CMAKE_CXX_STANDARD 11)
 add_executable(Royal_Jaguar_3
 		src/SystemControl.cpp
 		src/SystemControl.h
-		src/JsonTools.cpp
-		src/JsonTools.h
+		include/Royal-Jaguar-3/JsonTools.cpp
+		include/Royal-Jaguar-3/include/JsonTools/JsonTools.h
 		src/ShaderProgram.h
 		src/SpriteRender.h
 		src/Window.h src/GameObject.cpp src/GameObject.h)

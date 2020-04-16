@@ -4,7 +4,7 @@
 
 #include "SystemControl.h"
 
-#define MAIN_MENU_JSON "src/resources/data/MainMenu.json"
+#define MAIN_MENU_JSON "src/resources/data/Index.json"
 
 std::vector<GameObject*> Scene::get_objects() {
     return this->objects;
@@ -54,7 +54,7 @@ void GameLoop::run() {
         // update game state
         gameObjectReturns = this->scene.update_all();
         for (auto iter = gameObjectReturns.begin(); iter != gameObjectReturns.end(); iter++) {
-            if ((*iter) == "_start_game") {
+            if ((*iter) == "_load_scene") {
                 iter++;
                 this->load_scene(*iter);
                 break;

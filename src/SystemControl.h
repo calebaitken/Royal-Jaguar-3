@@ -9,11 +9,11 @@
 #include <list>
 #include <vector>
 #include "nlohmann/json.hpp"
+#include "JsonTools/JsonTools.h"
 
 #include "SpriteRender.h"
 #include "Window.h"
 #include "GameObject.h"
-#include "JsonTools.h"
 
 #define TYPE_MENU "_menu"
 #define TYPE_PLAYER "_player"
