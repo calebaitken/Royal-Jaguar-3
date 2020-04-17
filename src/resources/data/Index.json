@@ -31,7 +31,7 @@
       "xpos": 0.4,
       "ypos": 0.5,
       "image": "src/resources/images/start_game.png",
-      "function": ["_load_scene", "src/resources/data/StartGame.json"],
+      "function": ["_load_scene", "src/resources/data/Index.json"],
       "flags": []
     },
     {

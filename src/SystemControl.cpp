@@ -2,41 +2,51 @@
 // Created by caleb on 12/04/2020.
 //
 
+
+// TODO: memory leak
+//      all src, from the top.
+//      label everything first.
+
 #include "SystemControl.h"
 
 #define MAIN_MENU_JSON "src/resources/data/Index.json"
 
-std::vector<GameObject*> Scene::get_objects() {
+std::vector<std::unique_ptr<GameObject>> const& Scene::get_objects() {
     return this->objects;
 }
 
 template <typename T>
-void Scene::add_object(T object) {
+void Scene::add_object(std::unique_ptr<T> object) {
     static_assert(std::is_base_of<GameObject, T>::value, "T must inherit from GameObject");
-    this->objects.insert(this->objects.begin(), new T(object));}
+    this->objects.insert(this->objects.begin(), std::move(object));
+}
 
 template <typename T>
-void Scene::add_object(T object, bool first) {
+void Scene::add_object(std::unique_ptr<T> object, bool first) {
     static_assert(std::is_base_of<GameObject, T>::value, "T must inherit from GameObject");
     if (!first) {
-        this->objects.insert(this->objects.begin(), new T(object));
+        this->objects.insert(this->objects.begin(), std::move(object));
     } else {
-        this->objects.emplace_back(new T(object));
+        this->objects.emplace_back(std::move(object));
     }
 }
 
 std::list<std::string> Scene::update_all() {
     std::list<std::string> result, value;
     for (int i = 0; i < objects.size(); i++) {
-        result.splice(result.end(), objects[i]->update());
+        result.splice(result.end(), objects[i].get()->update());
     }
 
     return result;
 }
 
+void Scene::free() {
+    this->objects.clear();
+}
+
 void Scene::draw_all(glm::mat4 projection) {
     for (int i = 0; i < objects.size(); i++) {
-        objects[i]->draw(projection);
+        objects[i].get()->draw(projection);
     }
 }
 
@@ -73,15 +83,16 @@ void GameLoop::run() {
 
 void GameLoop::load_scene(std::string jsonFile) {
     json j = JsonTools::read_json_file(jsonFile);
-    this->scene = Scene();
+    this->scene.free();
+    //this->scene = Scene();
     if (j.at("type") == TYPE_MENU) {
         for (auto iter = j.at("elements").begin(); iter != j.at("elements").end(); iter++) {
             if ((*iter).at("type") == TYPE_STATIC_IMAGE) {
-                this->scene.add_object(StaticImage(*iter));
+                this->scene.add_object(std::unique_ptr<StaticImage>(new StaticImage(*iter)));
             } else if ((*iter).at("type") == TYPE_CURSOR) {
-                this->scene.add_object(Cursor(*iter), true);
+                this->scene.add_object(std::unique_ptr<Cursor>(new Cursor(*iter)), true);
             } else if ((*iter).at("type") == TYPE_BUTTON) {
-                this->scene.add_object(Button(*iter));
+                this->scene.add_object(std::unique_ptr<Button>(new Button(*iter)));
             }
         }
     } else if (j.at("type") == TYPE_PLAYER) {

@@ -16,15 +16,22 @@
 
 #define VERT_SHADER_FILE "src/resources/shaders/sprite.vert"
 #define FRAG_SHADER_FILE "src/resources/shaders/sprite.frag"
+#define DEFAULT_IMAGE "src/resources/images/ash_uvgrid01.png"
 
 class Texture2D;
 class SpriteRender;
 
 class Texture2D {
 public:
-    Texture2D() { };
+    ~Texture2D() {
+        //glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDeleteTextures(1, &this->ID);
+        std::cout << "texture deleted" << std::endl;
+    }
 
     Texture2D(const GLchar* file, GLboolean alpha) : width(0), height(0), internalFormat(GL_RGBA), imageFormat(GL_RGBA) {
+        std::cout << "texture made from: " << file << std::endl;
         glGenTextures(1, &this->ID);
         if (alpha) {
             internalFormat = GL_RGBA;
@@ -74,12 +81,10 @@ private:
 
 class SpriteRender {
 public:
-    SpriteRender() { };
+    ~SpriteRender() = default;
 
-    SpriteRender(std::string imageFile) {
+    explicit SpriteRender(std::string imageFile = DEFAULT_IMAGE) : texture(imageFile.c_str(), GL_TRUE), shaderProgram(VERT_SHADER_FILE, FRAG_SHADER_FILE) {
         this->rotate = 0.0f;
-        this->shaderProgram = Shader(VERT_SHADER_FILE, FRAG_SHADER_FILE);
-        this->texture = Texture2D(imageFile.c_str(), GL_TRUE);
         this->size = glm::vec2(this->texture.getWidth(), this->texture.getHeight());
         unsigned int VBO;
 
@@ -208,8 +213,8 @@ public:
     }
 
 private:
-    Shader shaderProgram = Shader();
-    Texture2D texture = Texture2D();
+    Shader shaderProgram;
+    Texture2D texture;
     glm::vec2 position;
     glm::vec2 size;
     GLfloat rotate;

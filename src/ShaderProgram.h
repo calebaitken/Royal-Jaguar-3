@@ -19,8 +19,6 @@ class Shader;
 
 class Shader {
 public:
-    Shader() { };
-
     Shader(std::string vert, std::string frag) {
         int vertShader, fragShader, success;
         GLchar* vertShaderSource, *fragShaderSource;

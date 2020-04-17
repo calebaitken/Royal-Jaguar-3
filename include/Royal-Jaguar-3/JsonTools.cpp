@@ -8,5 +8,6 @@ json JsonTools::read_json_file(const std::string& jsonFile) {
     std::ifstream i(jsonFile);
     json j;
     i >> j;
+    i.close();
     return j;
 }

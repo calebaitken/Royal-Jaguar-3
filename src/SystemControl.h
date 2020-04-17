@@ -32,12 +32,13 @@ public:
     ~Scene() = default;
     std::list<std::string> update_all();
     void draw_all(glm::mat4 projection);
-    template <typename T> void add_object(T object);
-    template <typename T> void add_object(T object, bool first);
-    std::vector<GameObject*> get_objects();
+    template <typename T> void add_object(std::unique_ptr<T> object);
+    template <typename T> void add_object(std::unique_ptr<T> object, bool first);
+    std::vector<std::unique_ptr<GameObject>> const& get_objects();
+    void free();
 
 private:
-    std::vector<GameObject*> objects;
+    std::vector<std::unique_ptr<GameObject>> objects;
 };
 
 class GameLoop {
