@@ -27,12 +27,12 @@ public:
         //glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
         glDeleteTextures(1, &this->ID);
-        std::cout << "texture deleted" << std::endl;
+        std::cout << "texture " << this->ID << " deleted" << std::endl;
     }
 
     Texture2D(const GLchar* file, GLboolean alpha) : width(0), height(0), internalFormat(GL_RGBA), imageFormat(GL_RGBA) {
-        std::cout << "texture made from: " << file << std::endl;
         glGenTextures(1, &this->ID);
+        std::cout << "texture " << this->ID << " made from: " << file << std::endl;
         if (alpha) {
             internalFormat = GL_RGBA;
             imageFormat = GL_RGBA;
@@ -83,7 +83,7 @@ class SpriteRender {
 public:
     ~SpriteRender() = default;
 
-    explicit SpriteRender(std::string imageFile = DEFAULT_IMAGE) : texture(imageFile.c_str(), GL_TRUE), shaderProgram(VERT_SHADER_FILE, FRAG_SHADER_FILE) {
+    explicit SpriteRender(const std::string& imageFile = DEFAULT_IMAGE) : texture(imageFile.c_str(), GL_TRUE), shaderProgram(VERT_SHADER_FILE, FRAG_SHADER_FILE) {
         this->rotate = 0.0f;
         this->size = glm::vec2(this->texture.getWidth(), this->texture.getHeight());
         unsigned int VBO;
@@ -142,7 +142,7 @@ public:
         glBindVertexArray(0);
     }
 
-    void setTexture(std::string imageFile) {
+    void setTexture(const std::string& imageFile) {
         this->texture = Texture2D(imageFile.c_str(), GL_TRUE);
     }
 

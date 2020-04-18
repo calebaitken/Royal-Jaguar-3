@@ -15,8 +15,8 @@ using json = nlohmann::json;
 
 class GameObject {
 public:
-    GameObject() = default;
-    ~GameObject() = default;
+    explicit GameObject() = default;
+    virtual ~GameObject() = default;
 
     virtual void draw(glm::mat4 projection);
     virtual std::list<std::string> update() = 0;
@@ -28,8 +28,9 @@ protected:
 
 class StaticImage : public GameObject {
 public:
-    explicit StaticImage(std::string imageFile);
+    explicit StaticImage(const std::string& imageFile);
     explicit StaticImage(json& j);
+    ~StaticImage() override = default;
 
     std::list<std::string> update() override {
         return {};
@@ -38,8 +39,9 @@ public:
 
 class Cursor : public GameObject {
 public:
-    explicit Cursor(std::string imageFile);
+    explicit Cursor(const std::string& imageFile);
     explicit Cursor(json& j);
+    ~Cursor() override = default;
 
     void draw(glm::mat4 projection) override;
     std::list<std::string> update() override;
@@ -52,6 +54,7 @@ protected:
 class Button : public StaticImage {
 public:
     explicit Button(json& j);
+    ~Button() override = default;
     std::list<std::string> update() override;
 
 private:

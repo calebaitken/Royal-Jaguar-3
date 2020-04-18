@@ -8,8 +8,9 @@ void GameObject::draw(glm::mat4 projection) {
     this->sprite.draw(projection);
 }
 
-StaticImage::StaticImage(std::string imageFile) {
-    this->sprite = SpriteRender(imageFile);
+StaticImage::StaticImage(const std::string& imageFile) {
+    this->sprite.~SpriteRender();
+    new (&this->sprite) SpriteRender(imageFile);
 }
 
 StaticImage::StaticImage(json& j) : StaticImage(std::string(j.at("image"))) {
@@ -73,17 +74,20 @@ StaticImage::StaticImage(json& j) : StaticImage(std::string(j.at("image"))) {
     }
 }
 
-Cursor::Cursor(std::string imageFile) {
-    this->sprite = SpriteRender(imageFile);
+Cursor::Cursor(const std::string& imageFile) {
+    this->sprite.~SpriteRender();
+    new (&this->sprite) SpriteRender(imageFile);
 }
 
 Cursor::Cursor(json &j) {
     std::cout << j.dump() << std::endl;
     for (auto iter = j.at("elements").begin(); iter != j.at("elements").end(); iter++) {
         if ((*iter).at("type") == "_pointer") {
-            this->sprite = SpriteRender((*iter).at("image"));
+            this->sprite.~SpriteRender();
+            new (&this->sprite) SpriteRender((*iter).at("image"));
         } else if ((*iter).at("type") == "_hand") {
-            this->altSprite = SpriteRender((*iter).at("image"));
+            this->altSprite.~SpriteRender();
+            new (&this->altSprite) SpriteRender((*iter).at("image"));
         }
     }
 

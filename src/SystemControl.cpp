@@ -11,8 +11,8 @@
 
 #define MAIN_MENU_JSON "src/resources/data/Index.json"
 
-std::vector<std::unique_ptr<GameObject>> const& Scene::get_objects() {
-    return this->objects;
+std::vector<std::unique_ptr<GameObject>> Scene::get_objects() {
+    return std::move(this->objects);
 }
 
 template <typename T>
@@ -27,7 +27,7 @@ void Scene::add_object(std::unique_ptr<T> object, bool first) {
     if (!first) {
         this->objects.insert(this->objects.begin(), std::move(object));
     } else {
-        this->objects.emplace_back(std::move(object));
+        this->objects.insert(this->objects.end(), std::move(object));
     }
 }
 
@@ -38,10 +38,6 @@ std::list<std::string> Scene::update_all() {
     }
 
     return result;
-}
-
-void Scene::free() {
-    this->objects.clear();
 }
 
 void Scene::draw_all(glm::mat4 projection) {
@@ -73,6 +69,7 @@ void GameLoop::run() {
                 break;
             }
         }
+        gameObjectReturns.clear();
 
         // draw frame
         this->window.clear_buffer();
@@ -81,10 +78,10 @@ void GameLoop::run() {
     }
 }
 
-void GameLoop::load_scene(std::string jsonFile) {
+void GameLoop::load_scene(const std::string& jsonFile) {
     json j = JsonTools::read_json_file(jsonFile);
-    this->scene.free();
-    //this->scene = Scene();
+    this->scene.~Scene();
+    new (&this->scene) Scene();
     if (j.at("type") == TYPE_MENU) {
         for (auto iter = j.at("elements").begin(); iter != j.at("elements").end(); iter++) {
             if ((*iter).at("type") == TYPE_STATIC_IMAGE) {

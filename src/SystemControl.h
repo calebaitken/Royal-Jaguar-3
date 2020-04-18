@@ -29,13 +29,11 @@ class Scene;
 class Scene {
 public:
     Scene() = default;
-    ~Scene() = default;
     std::list<std::string> update_all();
     void draw_all(glm::mat4 projection);
     template <typename T> void add_object(std::unique_ptr<T> object);
     template <typename T> void add_object(std::unique_ptr<T> object, bool first);
-    std::vector<std::unique_ptr<GameObject>> const& get_objects();
-    void free();
+    std::vector<std::unique_ptr<GameObject>> get_objects();
 
 private:
     std::vector<std::unique_ptr<GameObject>> objects;
@@ -48,17 +46,11 @@ public:
     void init();
     void run();
 
-    void load_scene(std::string jsonFile);
+    void load_scene(const std::string& jsonFile);
 
 private:
     Scene scene;
     Window window;
 };
-
-namespace SystemControl {
-    static void reload_scene(GameLoop* game, std::string jsonFile) {
-        game->load_scene(jsonFile);
-    }
-}
 
 #endif //ROYAL_JAGUAR_3_SYSTEMCONTROL_H
