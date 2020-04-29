@@ -98,9 +98,9 @@ public:
 
     std::string get_localhost();
 
-    SOCKET ephemeralPort;
 
 private:
+    SOCKET ephemeralPort;
     std::string localIP;
     std::string ID;
     struct addrinfo* ephAddr;

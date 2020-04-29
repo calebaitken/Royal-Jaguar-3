@@ -1,3 +1,0 @@
-C:/Users/caleb/Project Files/Royal-Jaguar-3/Test-Client/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-C:/Users/caleb/Project Files/Royal-Jaguar-3/Test-Client/cmake-build-debug/CMakeFiles/Test_Client.dir
-C:/Users/caleb/Project Files/Royal-Jaguar-3/Test-Client/cmake-build-debug/CMakeFiles/edit_cache.dir

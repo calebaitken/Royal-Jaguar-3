@@ -4,7 +4,7 @@
 
 int main() {
     std::string IP, port;
-    char buffer[1024];
+    std::string data;
     int status, sockfd;
     WSAData wsaData;
     addrinfo hints, *comAddr;
@@ -17,6 +17,7 @@ int main() {
     std::cin >> IP;
     std::cout << "Enter port: ";
     std::cin >> port;
+    std::cout << std::endl;
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_socktype = SOCK_STREAM;
@@ -36,12 +37,10 @@ int main() {
         return NULL;
     }
 
-    std::string pause;
-    std::cin >> pause;
-
-    recv(sockfd, buffer, sizeof(buffer), 0);
-
-    std::cout << buffer << std::endl;
+    std::cin >> data;
+    send(sockfd, data.c_str(), data.size(), 0);
+    recv(sockfd, &data[0], data.max_size(), 0);
+    std::cout << data << std::endl;
 
     shutdown(sockfd, SD_BOTH);
     closesocket(sockfd);

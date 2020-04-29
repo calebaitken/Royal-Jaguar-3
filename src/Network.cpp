@@ -148,11 +148,11 @@ bool Network::open_ephemeral() {
         return false;
     }
 
-    unsigned long mode = 0;
-    if ((status = ioctlsocket(this->ephemeralPort, FIONBIO, &mode)) < 0) {
-        std::cerr << "ioctlsocket() failed with err: " << gai_strerror(status) << std::endl;
-        return false;
-    }
+    //unsigned long mode = 0;
+    //if ((status = ioctlsocket(this->ephemeralPort, FIONBIO, &mode)) < 0) {
+    //    std::cerr << "ioctlsocket() failed with err: " << gai_strerror(status) << std::endl;
+    //    return false;
+    //}
 
     std::cout << ntohs(((struct sockaddr_in*) this->ephAddr->ai_addr)->sin_port) << std::endl;
 
@@ -185,9 +185,7 @@ bool Network::accept_connections() {
     socklen_t newAddrLen = sizeof(newAddr);
     if ((newfd = accept(this->ephemeralPort, (sockaddr*) &newAddr, &newAddrLen)) != -1) {
         this->connectedPorts.emplace_back(newfd);
-        std::string hello = "hello";
-        send(newfd, hello.c_str(), hello.size(), 0);
-        return false;
+        return true;
     }
 
     std::cerr << "WARNING: accept() failed to find an incoming connection either because one does not exist or their was an error." << std::endl;
