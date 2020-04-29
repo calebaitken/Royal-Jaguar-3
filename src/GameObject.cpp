@@ -2,6 +2,7 @@
 // Created by caleb on 14/04/2020.
 //
 
+
 #include "GameObject.h"
 
 void GameObject::draw(glm::mat4 projection) {

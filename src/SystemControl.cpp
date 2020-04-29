@@ -2,12 +2,10 @@
 // Created by caleb on 12/04/2020.
 //
 
-
-// TODO: memory leak
-//      all src, from the top.
-//      label everything first.
+// TODO: find small memory leak when reloading scene. can ignore for now.
 
 #include "SystemControl.h"
+#include "Network.h"
 
 #define MAIN_MENU_JSON "src/resources/data/Index.json"
 
@@ -53,9 +51,16 @@ void GameLoop::init() {
 
 void GameLoop::run() {
     std::list<std::string> gameObjectReturns;
+
     while(this->window.get_state()) {
-        // get user input
+        // wait for user input
         glfwWaitEvents();
+
+        // begin clock
+        auto start = std::chrono::high_resolution_clock::now();
+
+        // get network input
+        // this->network.read_all();
 
         // update game state
         gameObjectReturns = this->scene.update_all();
@@ -69,12 +74,20 @@ void GameLoop::run() {
                 break;
             }
         }
+
         gameObjectReturns.clear();
+
+        // send network output
 
         // draw frame
         this->window.clear_buffer();
         this->scene.draw_all(this->window.get_projection_mat());
         this->window.swap_buffer();
+
+        // stop clock and find runtime for loop
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+        // std::cout << duration.count() << std::endl;
     }
 }
 
@@ -100,8 +113,15 @@ void GameLoop::load_scene(const std::string& jsonFile) {
 }
 
 int main() {
-    GameLoop Game;
-    Game.init();
-    Game.run();
+    //GameLoop Game;
+    //Game.init();
+    //Game.run();
+
+    Network network;
+    network.open_ephemeral();
+    //std::string pause;
+    //std::cin >> pause;
+    //network.accept_connections();
+
     return 0;
 }
