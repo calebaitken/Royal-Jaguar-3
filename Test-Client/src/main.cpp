@@ -1,10 +1,11 @@
 #include <iostream>
 #include <ws2tcpip.h>
-
+#include <vector>
 
 int main() {
     std::string IP, port;
-    std::string data;
+    std::string data = "I am Client";
+    std::vector<char> buffer(1024);
     int status, sockfd;
     WSAData wsaData;
     addrinfo hints, *comAddr;
@@ -37,10 +38,9 @@ int main() {
         return NULL;
     }
 
-    std::cin >> data;
     send(sockfd, data.c_str(), data.size(), 0);
-    recv(sockfd, &data[0], data.max_size(), 0);
-    std::cout << data << std::endl;
+    recv(sockfd, &buffer[0], data.size(), 0);
+    std::cout << &buffer[0] << std::endl;
 
     shutdown(sockfd, SD_BOTH);
     closesocket(sockfd);

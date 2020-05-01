@@ -12,6 +12,7 @@
 void ThreadSafeQueue::push(const std::string &data) {
     std::lock_guard<std::mutex> lock(this->mutex);
     this->queue.push_back(data);
+    this->pushCond.notify_all();
 }
 
 /**
@@ -26,18 +27,29 @@ void ThreadSafeQueue::pop(std::string& data){
     } else {
         data.assign(this->queue.front());
         this->queue.pop_front();
+        this->popCond.notify_all();
     }
+}
+
+void ThreadSafeQueue::wait_for_pop() {
+    std::unique_lock<std::mutex> lock(this->mutex);
+    popCond.wait(lock);
+}
+
+void ThreadSafeQueue::wait_for_push() {
+    std::unique_lock<std::mutex> lock(this->mutex);
+    pushCond.wait(lock);
 }
 
 ReadFunctor::ReadFunctor(const SOCKET& s) {
     this->socket = s;
 }
 
-void ReadFunctor::set_socket(const SOCKET &s) {
+void ReadFunctor::set_socket(const SOCKET& s) {
     this->socket = s;
 }
 
-SOCKET& ReadFunctor::get_socket() {
+SOCKET ReadFunctor::get_socket() {
     return this->socket;
 }
 
@@ -46,14 +58,36 @@ void ReadFunctor::pop(std::string &data) {
 }
 
 void ReadFunctor::operator()() {
-    char buffer[2014];
+    std::vector<char> buffer(SOCKET_BUFFER_SIZE);
+    while (recv(this->socket, &buffer[0], buffer.size(), 0) > 0) {
+        this->queue.push(&buffer[0]);
+    }
+    std::cout << "read ready to join" << std::endl;
+}
 
-    recv(this->socket, buffer, sizeof(buffer), 0);
-    this->queue.push(buffer);
+WriteFunctor::WriteFunctor(const SOCKET& s) {
+    this->socket = s;
+}
+
+void WriteFunctor::set_socket(const SOCKET &s) {
+    this->socket = s;
+}
+
+SOCKET WriteFunctor::get_socket() {
+    return this->socket;
 }
 
 void WriteFunctor::push(const std::string &data) {
     this->queue.push(data);
+}
+
+void WriteFunctor::operator()() {
+    std::string buffer;
+    do {
+        //this->queue.wait_for_push();
+        this->queue.pop(buffer);
+    } while (send(this->socket, buffer.c_str(), buffer.size(), 0) >= 0);
+    std::cout << "write ready to join" << std::endl;
 }
 
 Network::Network() {
@@ -61,7 +95,7 @@ Network::Network() {
 
     // start winsock (must be ended for each start)
     if ((status = WSAStartup(MAKEWORD(2, 0), &this->wsaData)) != 0) {
-        std::cerr << "WSAStartup() failed." << std::endl;
+        std::cerr << "WSAStartup() failed: " << status << std::endl;
     }
 
     // get LAN address
@@ -70,8 +104,44 @@ Network::Network() {
 }
 
 Network::~Network() {
-    this->close_ephemeral();
+    if (this->ephOpen) {
+        this->close_ephemeral();
+    }
+
+    for (auto& threads: this->IOThreads) {
+        threads.second.first.join();
+        threads.second.second.join();
+    }
+
     WSACleanup();
+}
+
+/**
+ * gets a list of connected sockets
+ *
+ * @return  copy of list of connected sockets
+ */
+std::vector<SOCKET> Network::get_connected_ports() {
+    return this->connectedPorts;
+}
+
+bool Network::close_socket(SOCKET socket) {
+    auto position = std::find(this->connectedPorts.begin(), this->connectedPorts.end(), socket);
+    if (position == this->connectedPorts.end()) {
+        std::cerr << "Network::close_socket(SOCKET socket)" << std::endl;
+        std::cerr << "\tcould not find a match for the given socket." << std::endl;
+        return true;
+    }
+
+    int status;
+    if ((status = closesocket(*position)) != 0) {
+        std::cerr << "Network::close_socket(SOCKET socket)" << std::endl;
+        std::cerr << "shutdown() failed with err: " << status << std::endl;
+        return false;
+    }
+
+    this->connectedPorts.erase(position);
+    return true;
 }
 
 /**
@@ -115,6 +185,11 @@ std::string Network::get_localhost() {
 }
 
 bool Network::open_ephemeral() {
+    if (this->ephOpen) {
+        std::cerr << "Network::open_ephemeral()" << std::endl << "\tephemeral port already open" << std::endl;
+        return true;
+    }
+
     int status;
     addrinfo hints;
 
@@ -125,27 +200,27 @@ bool Network::open_ephemeral() {
 
     if ((status = getaddrinfo(this->localIP.c_str(), "0", &hints, &this->ephAddr)) != 0) {
         std::cerr << "getaddrinfo() failed with err: " << gai_strerror(status) << std::endl;
-        return false;
+        return (this->ephOpen = false);
     }
 
     if ((this->ephemeralPort = socket(this->ephAddr->ai_family, this->ephAddr->ai_socktype, this->ephAddr->ai_protocol)) < 0) {
         std::cerr << "socket() failed with err: " << gai_strerror(this->ephemeralPort) << std::endl;
-        return false;
+        return (this->ephOpen = false);
     }
 
     if ((status = bind(this->ephemeralPort, this->ephAddr->ai_addr, this->ephAddr->ai_addrlen)) != 0) {
         std::cerr << "bind() failed with err: " << gai_strerror(status) << std::endl;
-        return false;
+        return (this->ephOpen = false);
     }
 
     if ((status = listen(this->ephemeralPort, CONNECTION_LIMIT)) != 0) {
         std::cerr << "listen() failed with err: " << gai_strerror(status) << std::endl;
-        return false;
+        return (this->ephOpen = false);
     }
 
     if ((status = getsockname(this->ephemeralPort, this->ephAddr->ai_addr, (int*) &this->ephAddr->ai_addrlen)) != 0) {
         std::cerr << "getsockname() failed with err: " << gai_strerror(status) << std::endl;
-        return false;
+        return (this->ephOpen = false);
     }
 
     //unsigned long mode = 0;
@@ -162,32 +237,69 @@ bool Network::open_ephemeral() {
     // TODO: OR use non-blocking IO. not sure what it does?  RESEARCH IT!
     //this->ephemeralPort = std::fstream(fdopen(sockfd, "rw"));
 
-    return true;
+    return (this->ephOpen = true);
 }
 
 bool Network::close_ephemeral() {
+    if (!this->ephOpen) {
+        std::cerr << "Network::close_ephemeral()" << std::endl << "\tephemeral port not open or already closed" << std::endl;
+        return true;
+    }
+
     int status;
 
     if ((status = closesocket(this->ephemeralPort)) != 0) {
         std::cerr << "shutdown() failed with err: " << status << std::endl;
-        return false;
+        return (this->ephOpen = false);
     } else {
         freeaddrinfo(this->ephAddr);
     }
 
-    return true;
+    return (this->ephOpen = true);
 }
 
 bool Network::accept_connections() {
-    int status, newfd;
+    if (!this->ephOpen) {
+        std::cerr << "Network::accept_connections()" << std::endl << "\tEphemeral port has not been opened, cannot accept connections" << std::endl;
+        return false;
+    }
+
+    SOCKET newfd;
     sockaddr_storage newAddr;
 
     socklen_t newAddrLen = sizeof(newAddr);
     if ((newfd = accept(this->ephemeralPort, (sockaddr*) &newAddr, &newAddrLen)) != -1) {
         this->connectedPorts.emplace_back(newfd);
+        ReadFunctor newRead(newfd);
+        WriteFunctor newWrite(newfd);
+        this->IOFunctors.emplace(newfd, std::make_pair(std::move(newRead), std::move(newWrite)));
+        std::thread newReadThread(std::ref(this->IOFunctors.at(newfd).first));
+        std::thread newWriteThread(std::ref(this->IOFunctors.at(newfd).second));
+        this->IOThreads.emplace(newfd, std::make_pair(std::move(newReadThread), std::move(newWriteThread)));
         return true;
     }
 
     std::cerr << "WARNING: accept() failed to find an incoming connection either because one does not exist or their was an error." << std::endl;
     return false;
+}
+
+void Network::read(const SOCKET &s, std::string &data) {
+    auto iofunctor = this->IOFunctors.find(s);
+    if (iofunctor == this->IOFunctors.end()) {
+        std::cerr << "bool Network::read(const SOCKET &s, std::string &data)" << std::endl;
+        std::cerr << "\tcould not find socket" << std::endl;
+        data.clear();
+    }
+
+    (*iofunctor).second.first.pop(data);
+}
+
+void Network::write(const SOCKET &s, const std::string &data) {
+    auto iofunctor = this->IOFunctors.find(s);
+    if (iofunctor == this->IOFunctors.end()) {
+        std::cerr << "bool Network::read(const SOCKET &s, std::string &data)" << std::endl;
+        std::cerr << "\tcould not find socket" << std::endl;
+    }
+
+    (*iofunctor).second.second.push(data);
 }

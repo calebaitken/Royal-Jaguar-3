@@ -124,20 +124,18 @@ int main() {
     //std::cin >> pause;
     network.accept_connections();
 
-    ReadFunctor rf(network.connectedPorts.at(0));
-    std::thread t1(std::ref(rf));
+    std::string buffer = "i am server";
 
-    std::string buffer;
+    network.write(network.get_connected_ports().at(0), buffer);
 
+    buffer.clear();
     while (buffer.empty()) {
-        rf.pop(buffer);
-        std::cout << buffer << std::endl;
+        network.read(network.get_connected_ports().at(0), buffer);
     }
 
-    t1.join();
-
-    rf.pop(buffer);
     std::cout << buffer << std::endl;
+
+    network.close_socket(network.get_connected_ports().at(0));
 
     return 0;
 }
