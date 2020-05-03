@@ -39,7 +39,7 @@ int main() {
     }
 
     send(sockfd, data.c_str(), data.size(), 0);
-    recv(sockfd, &buffer[0], data.size(), 0);
+    recv(sockfd, &buffer[0], buffer.size(), 0);
     std::cout << &buffer[0] << std::endl;
 
     shutdown(sockfd, SD_BOTH);

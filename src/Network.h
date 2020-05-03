@@ -28,6 +28,7 @@
  * thread safe queue. contains a mutex that is locked when pushing/popping.
  * cannot be copied but can be moved.
  */
+template <typename T>
 class ThreadSafeQueue {
 public:
     explicit ThreadSafeQueue() = default;
@@ -54,14 +55,14 @@ public:
         return *this;
     };
 
-    void push(const std::string& data);
-    void pop(std::string& data);
+    void push(const T& data);
+    void pop(T& data);
 
     void wait_for_push();
     void wait_for_pop();
 
 private:
-    std::list<std::string> queue;
+    std::list<T> queue;
     std::mutex mutex;
     std::condition_variable pushCond;
     std::condition_variable popCond;
@@ -82,13 +83,12 @@ public:
 
     void operator()();
 
-    void set_socket(const SOCKET& s);
     SOCKET get_socket();
 
     void pop(std::string& data);
 
 private:
-    ThreadSafeQueue queue;
+    ThreadSafeQueue<std::string> queue;
     SOCKET socket;
 };
 
@@ -107,13 +107,36 @@ public:
 
     void operator()();
 
-    void set_socket(const SOCKET& s);
     SOCKET get_socket();
 
     void push(const std::string& data);
 
 private:
-    ThreadSafeQueue queue;
+    ThreadSafeQueue<std::string> queue;
+    SOCKET socket;
+};
+
+class AcceptConnectionFunctor {
+public:
+    explicit AcceptConnectionFunctor(const SOCKET& ephSock = -1);
+    ~AcceptConnectionFunctor() = default;
+
+    // non-copyable
+    AcceptConnectionFunctor(const AcceptConnectionFunctor&) = delete;
+    AcceptConnectionFunctor operator=(const AcceptConnectionFunctor&) = delete;
+
+    // movable
+    AcceptConnectionFunctor(AcceptConnectionFunctor&&) = default;
+    AcceptConnectionFunctor& operator=(AcceptConnectionFunctor&&) = default;
+
+    void operator()();
+
+    SOCKET get_socket();
+
+    void pop(SOCKET& s);
+
+private:
+    ThreadSafeQueue<SOCKET> queue;
     SOCKET socket;
 };
 
@@ -147,11 +170,15 @@ private:
     std::vector<SOCKET> connectedPorts;
     std::map<SOCKET, std::pair<ReadFunctor, WriteFunctor>> IOFunctors;
     std::map<SOCKET, std::pair<std::thread, std::thread>> IOThreads;
+
     std::string localIP;
 
+    // TODO: eph port thread
     // ephemeral port
     bool ephOpen = false;
     SOCKET ephemeralPort;
+    AcceptConnectionFunctor ephAcceptFunctor;
+    std::thread ephAcceptThread;
     struct addrinfo* ephAddr;
 };
 

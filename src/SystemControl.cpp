@@ -114,28 +114,8 @@ void GameLoop::load_scene(const std::string& jsonFile) {
 
 // TODO: convert most functions to use references to avoid copying. help with memory?
 int main() {
-    //GameLoop Game;
-    //Game.init();
-    //Game.run();
-
-    Network network;
-    network.open_ephemeral();
-    //std::string pause;
-    //std::cin >> pause;
-    network.accept_connections();
-
-    std::string buffer = "i am server";
-
-    network.write(network.get_connected_ports().at(0), buffer);
-
-    buffer.clear();
-    while (buffer.empty()) {
-        network.read(network.get_connected_ports().at(0), buffer);
-    }
-
-    std::cout << buffer << std::endl;
-
-    network.close_socket(network.get_connected_ports().at(0));
-
+    GameLoop Game;
+    Game.init();
+    Game.run();
     return 0;
 }
