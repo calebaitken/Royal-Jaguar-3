@@ -17,6 +17,8 @@
 #include "GameObject.h"
 #include "Network.h"
 
+#define MAIN_MENU_JSON "src/resources/data/Index.json"
+
 #define TYPE_MENU "_menu"
 #define TYPE_PLAYER "_player"
 #define TYPE_STATIC_IMAGE "_staticImage"

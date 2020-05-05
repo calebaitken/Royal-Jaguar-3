@@ -17,6 +17,9 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive")
+
+add_compile_definitions(GLFW_EXPOSE_NATIVE_WIN32)
+add_compile_definitions(GLFW_EXPOSE_NATIVE_WGL)
 add_compile_definitions(GLEW_STATIC)
 add_compile_definitions(_WIN32_WININT)
 

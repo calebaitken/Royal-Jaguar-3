@@ -5,9 +5,6 @@
 // TODO: find small memory leak when reloading scene. can ignore for now.
 
 #include "SystemControl.h"
-#include "Network.h"
-
-#define MAIN_MENU_JSON "src/resources/data/Index.json"
 
 void Scene::reset() {
     while (!this->objects.empty()) {
