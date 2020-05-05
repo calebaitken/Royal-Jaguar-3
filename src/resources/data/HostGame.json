@@ -1,0 +1,25 @@
+{
+  "type": "_menu",
+  "elements": [
+    {
+      "type": "_cursor",
+      "elements": [
+        {
+          "type": "_pointer",
+          "image": "src/resources/images/cursor_pointer02.png"
+        },
+        {
+          "type": "_hand",
+          "image": "src/resources/images/cursor_hand02.png"
+        }
+      ],
+      "flags": []
+    },
+    {
+      "type": "_text"
+    }
+  ],
+  "flags": [
+    "_host_menu"
+  ]
+}

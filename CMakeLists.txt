@@ -37,7 +37,10 @@ add_executable(Royal_Jaguar_3
 		include/Royal-Jaguar-3/JsonTools.cpp
 		include/Royal-Jaguar-3/include/JsonTools/JsonTools.h
 		src/ShaderProgram.h
+		src/ShaderProgram.cpp
+		src/SpriteRender.cpp
 		src/SpriteRender.h
+		src/Window.cpp
 		src/Window.h
 		src/GameObject.cpp
 		src/GameObject.h

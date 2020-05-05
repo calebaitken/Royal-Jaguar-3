@@ -44,5 +44,6 @@
       "function": ["_quit_game"],
       "flags": []
     }
-  ]
+  ],
+  "flags": []
 }

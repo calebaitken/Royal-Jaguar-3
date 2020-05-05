@@ -9,6 +9,16 @@
 
 #define MAIN_MENU_JSON "src/resources/data/Index.json"
 
+void Scene::reset() {
+    while (!this->objects.empty()) {
+        (*this->objects.begin()).reset(nullptr);
+        this->objects.erase(this->objects.begin());
+    }
+
+    this->_host_menu = false;
+    this->_join_menu = false;
+}
+
 std::vector<std::unique_ptr<GameObject>> Scene::get_objects() {
     return std::move(this->objects);
 }
@@ -49,6 +59,9 @@ void GameLoop::init() {
     this->load_scene(MAIN_MENU_JSON);
 }
 
+/**
+ * MAIN GAME LOOP
+ */
 void GameLoop::run() {
     std::list<std::string> gameObjectReturns;
 
@@ -93,9 +106,9 @@ void GameLoop::run() {
 
 void GameLoop::load_scene(const std::string& jsonFile) {
     json j = JsonTools::read_json_file(jsonFile);
-    this->scene.~Scene();
-    new (&this->scene) Scene();
+    this->scene.reset();
     if (j.at("type") == TYPE_MENU) {
+        // create gameobjects from elements of scene
         for (auto iter = j.at("elements").begin(); iter != j.at("elements").end(); iter++) {
             if ((*iter).at("type") == TYPE_STATIC_IMAGE) {
                 this->scene.add_object(std::unique_ptr<StaticImage>(new StaticImage(*iter)));
@@ -105,8 +118,15 @@ void GameLoop::load_scene(const std::string& jsonFile) {
                 this->scene.add_object(std::unique_ptr<Button>(new Button(*iter)));
             }
         }
-    } else if (j.at("type") == TYPE_PLAYER) {
-        // no implementation
+
+        // set flags
+        for (auto iter = j.at("flags").begin(); iter != j.at("flags").end(); iter++) {
+            if ((*iter) == FLAG_HOST_MENU) {
+                this->scene._host_menu = true;
+            } else if ((*iter) == FLAG_JOIN_MENU) {
+                this->scene._join_menu = true;
+            }
+        }
     } else {
         throw std::runtime_error("No valid type found");
     }
