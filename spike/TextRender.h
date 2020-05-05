@@ -43,10 +43,10 @@ private:
     HDC hDC = NULL;
     std::string fontName;
     HFONT font;
-    std::vector<char> data;
+    std::string data;
     GLuint base;
 
-    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 color = glm::vec3(1.0f, 0.0f, 0.0f);
     glm::vec2 pos = glm::vec2(1.0f, 1.0f);
 
     float cnt1, cnt2;

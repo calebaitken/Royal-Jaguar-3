@@ -17,14 +17,15 @@ TextRender::~TextRender() {
 void TextRender::generate_font() {
     HFONT oldFont;
 
-    this->base = glGenLists(96);    // store 96 characters
+    this->base = glGenLists(127);    // store 96 characters
 
-    this->font = CreateFont(-24, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE | DEFAULT_PITCH, this->fontName.c_str());
+    this->font = CreateFont(40, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, 0, 0, 0, 0, this->fontName.c_str());
 
-    oldFont = (HFONT)SelectObject(this->hDC, this->font);
-    wglUseFontBitmaps(this->hDC, 32, 96, this->base);
-    SelectObject(this->hDC, oldFont);
-    DeleteObject(this->font);
+    oldFont = (HFONT) SelectObject(this->hDC, this->font);
+    wglUseFontBitmaps(this->hDC, 0, 127, this->base);
+    wglUseFontBitmaps(this->hDC, 0, 127, this->base);
+    //SelectObject(this->hDC, oldFont);
+    //DeleteObject(this->font);
 }
 
 void TextRender::destroy_font() {
@@ -43,24 +44,23 @@ void TextRender::set_string(const char* format, ...) {
         std::vsprintf(buffer, format, ap);
     va_end(ap);
 
-    this->data.clear();
-    this->data.assign(&buffer[0], &buffer[strlen(buffer)]);
-    std::cout << &this->data[0] << std::endl;
+    this->data.assign(buffer);
 }
 
 void TextRender::draw() {
     glLoadIdentity();
     glTranslatef(0.0f, 0.0f, -1.0f);
     //glColor3f(this->color[0], this->color[1], this->color[2]);
-    glColor3f(1.0f*float(cos(cnt1)),1.0f*float(sin(cnt2)),1.0f-0.5f*float(cos(cnt1+cnt2)));
+    glColor3f(1.0f, 0.0f, 0.0f);
     //glRasterPos2f(this->pos[0], this->pos[1]);
-    glRasterPos2f(-0.45f+0.05f*float(cos(cnt1)), 0.35f*float(sin(cnt2)));
+    glRasterPos3i(-1, 0, 5);
 
     glPushAttrib(GL_LIST_BIT);
-    glListBase(this->base - 32);
+    glListBase(this->base);
 
-    glCallLists(this->data.size(), GL_UNSIGNED_SHORT, this->data.data());
+    glCallLists(this->data.length(), GL_UNSIGNED_BYTE, this->data.c_str());
     glPopAttrib();
+
 
     cnt1+=0.051f;
     cnt2+=0.005f;
