@@ -11,6 +11,7 @@ include_directories(include/SOIL-master/include)
 include_directories(include/json-develop/include)
 include_directories(include/Royal-Jaguar-3/include)
 include_directories(include/mingw-std-threads-master)
+include_directories(include/freetype-2.9/include)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -23,7 +24,7 @@ add_compile_definitions(GLFW_EXPOSE_NATIVE_WGL)
 add_compile_definitions(GLEW_STATIC)
 add_compile_definitions(_WIN32_WININT)
 
-set(JSON_BuildTests OFF CACHE INTERNAL    "")
+set(JSON_BuildTests OFF CACHE INTERNAL "")
 
 add_subdirectory(include/glfw-3.3.2)
 add_subdirectory(include/glew-2.1.0/build/cmake)
@@ -31,6 +32,7 @@ add_subdirectory(include/glm-master)
 add_subdirectory(include/SOIL-master)
 add_subdirectory(include/json-develop)
 add_subdirectory(include/mingw-std-threads-master)
+add_subdirectory(include/freetype-2.9)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -48,12 +50,11 @@ add_executable(Royal_Jaguar_3
 		src/GameObject.cpp
 		src/GameObject.h
 		src/Network.cpp
-		src/Network.h)
+		src/Network.h
+		src/TextRender.cpp
+		src/TextRender.h)
 
 file(COPY src/resources DESTINATION "${CMAKE_BINARY_DIR}/src")
 file(COPY libs/ DESTINATION "${CMAKE_BINARY_DIR}")
-#file(COPY src/shaders/sprite.vert DESTINATION "${CMAKE_BINARY_DIR}/src/shaders")
-#file(COPY src/resources/ash_uvgrid01.png DESTINATION "${CMAKE_BINARY_DIR}/resources")
-#file(COPY src/resources/ash_uvgrid07.png DESTINATION "${CMAKE_BINARY_DIR}/resources")
 
-target_link_libraries(Royal_Jaguar_3 nlohmann_json glfw glew -lglu32 -lopengl32 glm soil -lWs2_32)
+target_link_libraries(Royal_Jaguar_3 freetype nlohmann_json glfw glew -lglu32 -lopengl32 glm soil -lWs2_32)

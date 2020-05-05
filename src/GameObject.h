@@ -18,6 +18,9 @@ public:
     explicit GameObject() = default;
     virtual ~GameObject() = default;
 
+    GameObject(const GameObject&) = delete;
+    GameObject& operator=(GameObject&) = delete;
+
     virtual void draw(glm::mat4 projection);
     virtual std::list<std::string> update() = 0;
 
@@ -32,6 +35,9 @@ public:
     explicit StaticImage(json& j);
     ~StaticImage() override = default;
 
+    StaticImage(const StaticImage&) = delete;
+    StaticImage& operator=(StaticImage&) = delete;
+
     std::list<std::string> update() override {
         return {};
     };
@@ -42,6 +48,9 @@ public:
     explicit Cursor(const std::string& imageFile);
     explicit Cursor(json& j);
     ~Cursor() override = default;
+
+    Cursor(const Cursor&) = delete;
+    Cursor& operator=(Cursor&) = delete;
 
     void draw(glm::mat4 projection) override;
     std::list<std::string> update() override;
@@ -55,6 +64,10 @@ class Button : public StaticImage {
 public:
     explicit Button(json& j);
     ~Button() override = default;
+
+    Button(const Button&) = delete;
+    Button& operator=(Button&) = delete;
+
     std::list<std::string> update() override;
 
 private:

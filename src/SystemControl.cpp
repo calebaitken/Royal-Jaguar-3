@@ -5,6 +5,7 @@
 // TODO: find small memory leak when reloading scene. can ignore for now.
 
 #include "SystemControl.h"
+#include "TextRender.h"
 
 void Scene::reset() {
     while (!this->objects.empty()) {
@@ -61,6 +62,8 @@ void GameLoop::init() {
  */
 void GameLoop::run() {
     std::list<std::string> gameObjectReturns;
+    Font arial("src/resources/fonts/arial.ttf");
+    TextRender text(arial, "This is a test");
 
     while(this->window.get_state()) {
         // wait for user input
@@ -92,6 +95,7 @@ void GameLoop::run() {
         // draw frame
         this->window.clear_buffer();
         this->scene.draw_all(this->window.get_projection_mat());
+        text.draw(this->window.get_projection_mat());
         this->window.swap_buffer();
 
         // stop clock and find runtime for loop
