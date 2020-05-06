@@ -6,6 +6,7 @@
 #define ROYAL_JAGUAR_SPRITERENDER_H
 
 #include <cmath>
+#include <memory>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "GL/glew.h"
@@ -13,6 +14,7 @@
 #include "SOIL/SOIL.h"
 
 #include "ShaderProgram.h"
+#include "BaseRender.h"
 
 #define VERT_SHADER_FILE "src/resources/shaders/sprite.vert"
 #define FRAG_SHADER_FILE "src/resources/shaders/sprite.frag"
@@ -23,11 +25,12 @@ class SpriteRender;
 
 class Texture2D {
 public:
+    explicit Texture2D() = default;
     explicit Texture2D(const GLchar* file, GLboolean alpha);
     ~Texture2D();
 
     // non-copyable
-    Texture2D(const Texture2D&) = delete;
+    Texture2D(const Texture2D& other) = delete;
     Texture2D& operator=(Texture2D&) = delete;
 
     // movable
@@ -48,9 +51,10 @@ private:
     GLuint imageFormat;
 };
 
-class SpriteRender {
+class SpriteRender : public BaseRender {
 public:
-    explicit SpriteRender(const std::string& imageFile = DEFAULT_IMAGE);
+    explicit SpriteRender() = default;
+    explicit SpriteRender(const std::string& imageFile);
     ~SpriteRender() = default;
 
     // non-copyable
@@ -61,33 +65,13 @@ public:
     SpriteRender(SpriteRender&&) = default;
     SpriteRender& operator=(SpriteRender&&) = default;
 
-    void draw(glm::mat4 projection);
-
-    glm::vec2 getPosition();
-    glm::vec2 getSize();
-    glm::vec3 getColour();
-    GLfloat getRotation();
-
-    void setTexture(const std::string& imageFile);
-    void setPosition(glm::vec2 newPosition);
-    void setPosition(GLfloat x, GLfloat y);
-    void setPosition(GLfloat x, GLfloat y, bool ratio);
-    void setSize(glm::vec2 newSize);
-    void setSize(GLfloat x, GLfloat y);
-    void setSize(GLfloat x, GLfloat y, bool ratio);
-    void setColour(glm::vec3 newColour);
-    void setColour(GLfloat r, GLfloat g, GLfloat b);
-    void setRotation(GLfloat degrees);
+    void draw(glm::mat4 projection) override;
 
     void scale_to_width();
 
 private:
-    Shader shaderProgram;
-    Texture2D texture;
-    glm::vec2 position;
-    glm::vec2 size;
-    GLfloat rotate;
-    glm::vec3 colour = glm::vec3(1.0f, 1.0f, 1.0f);
-    unsigned int VAO;
+    std::unique_ptr<Shader> shaderProgram;
+    std::unique_ptr<Texture2D> texture;
+    unsigned int VAO = 0;
 };
 #endif //ROYAL_JAGUAR_SPRITERENDER_H

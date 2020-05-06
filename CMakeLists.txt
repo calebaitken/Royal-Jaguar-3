@@ -52,7 +52,7 @@ add_executable(Royal_Jaguar_3
 		src/Network.cpp
 		src/Network.h
 		src/TextRender.cpp
-		src/TextRender.h)
+		src/TextRender.h src/BaseRender.cpp src/BaseRender.h)
 
 file(COPY src/resources DESTINATION "${CMAKE_BINARY_DIR}/src")
 file(COPY libs/ DESTINATION "${CMAKE_BINARY_DIR}")

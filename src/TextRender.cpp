@@ -82,7 +82,7 @@ std::reference_wrapper<Font> FontList::get_font(int fontID) {
 }
 */
 
-TextRender::TextRender(Font& font, const std::string text) {
+TextRender::TextRender(Font& font, const std::string& text) {
     this->font.reset(&font);
     this->text = text;
 
@@ -119,7 +119,7 @@ void TextRender::set_font(Font& font) {
 void TextRender::draw(glm::mat4 projection) {
     // set gl render state
     this->program.use();
-    this->program.setVector3f("textColor", this->color);
+    this->program.setVector3f("textColor", this->colour);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(this->VAO);
 
@@ -132,10 +132,10 @@ void TextRender::draw(glm::mat4 projection) {
         this->program.setInteger("text", 0);
         this->program.setMatrix4("projection", projection);
 
-        float xpos = this->position.x + glyph.bearing.x * this->scale;
-        float ypos = this->position.y + (glyph.size.y - glyph.bearing.y) * this->scale;
-        float w = glyph.size.x * scale;
-        float h = -(glyph.size.y * scale);
+        float xpos = this->position.x + glyph.bearing.x * this->size.x;
+        float ypos = this->position.y + (glyph.size.y - glyph.bearing.y) * this->size.y;
+        float w = glyph.size.x * this->size.x;
+        float h = -(glyph.size.y * this->size.y);
 
         float vertices[6][4] = {
                 { xpos,     ypos + h,   0.0f, 0.0f },
@@ -155,7 +155,7 @@ void TextRender::draw(glm::mat4 projection) {
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        this->position.x += (glyph.advance >> 6) * scale;
+        this->position.x += (glyph.advance >> 6) * this->size.x;
     }
 
     glBindVertexArray(0);

@@ -23,7 +23,8 @@
 #define TYPE_PLAYER "_player"
 #define TYPE_STATIC_IMAGE "_staticImage"
 #define TYPE_CURSOR "_cursor"
-#define TYPE_BUTTON "_button"
+#define TYPE_IMAGE_BUTTON "_imageButton"
+#define TYPE_TEXT "_text"
 
 #define FLAG_HOST_MENU "_host_menu"
 #define FLAG_JOIN_MENU "_join_menu"
@@ -44,7 +45,6 @@ public:
     void draw_all(glm::mat4 projection);
     template <typename T> void add_object(std::unique_ptr<T> object);
     template <typename T> void add_object(std::unique_ptr<T> object, bool first);
-    std::vector<std::unique_ptr<GameObject>> get_objects();
 
     bool _host_menu = false;
     bool _join_menu = false;

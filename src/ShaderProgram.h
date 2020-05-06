@@ -19,8 +19,9 @@ class Shader;
 
 class Shader {
 public:
+    explicit Shader() = default;
     Shader(std::string vert, std::string frag);
-    ~Shader() = default;
+    ~Shader();
 
     // non-copyable
     Shader(const Shader&) = delete;
@@ -41,7 +42,7 @@ public:
     void setMatrix4(const GLchar* name, const glm::mat4& matrix);
 
 private:
-    int program = 0;
+    int program;
 
     int fileToString(const std::string& sourceFile, GLchar** source, unsigned long* len);
 };

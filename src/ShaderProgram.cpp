@@ -12,7 +12,10 @@ Shader::Shader(std::string vert, std::string frag) {
 
     // Build & compile shaders
     vertShader = glCreateShader(GL_VERTEX_SHADER);
+    std::cout << "Created OpenGL shader: " << vertShader << " from: " << vert << std::endl;
     fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+    std::cout << "Created OpenGL shader: " << fragShader << " from: " << frag << std::endl;
+
     if (vertShader == 0 || fragShader == 0) {
         throw std::runtime_error("Error creating shaders");
     }
@@ -58,8 +61,19 @@ Shader::Shader(std::string vert, std::string frag) {
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
         throw std::runtime_error("Failed shader link");
     }
-    glDeleteShader(this->program);
-    glDeleteShader(this->program);
+
+    std::cout << "Created OpenGL program: " << this->program << " from: " << vert << ", " << frag << std::endl;
+    glDetachShader(this->program, vertShader);
+    glDetachShader(this->program, fragShader);
+    glDeleteShader(vertShader);
+    std::cout << "Deleted OpenGL shader: " << vertShader << std::endl;
+    glDeleteShader(fragShader);
+    std::cout << "Deleted OpenGL shader: " << fragShader << std::endl;
+}
+
+Shader::~Shader(){
+    glDeleteProgram(this->program);
+    std::cout << "Deleted OpenGL program: " << this->program << std::endl;
 }
 
 int Shader::fileToString(const std::string& sourceFile, GLchar** source, unsigned long* len) {

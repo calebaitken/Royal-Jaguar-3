@@ -17,6 +17,7 @@
 #include "glm/glm.hpp"
 
 #include "ShaderProgram.h"
+#include "BaseRender.h"
 
 struct Charater;
 class Font;
@@ -34,6 +35,7 @@ struct Glyph {
 
 class Font {
 public:
+    explicit Font() = default;
     explicit Font(const std::string& fontName);
     ~Font();
 
@@ -74,9 +76,10 @@ private:
 };
 */
 
-class TextRender {
+class TextRender : BaseRender {
 public:
-    TextRender(Font& font, const std::string text);
+    explicit TextRender() = default;
+    TextRender(Font& font, const std::string& text);
     ~TextRender() = default;
 
     // non-copyable
@@ -87,18 +90,14 @@ public:
     TextRender(TextRender&&) = default;
     TextRender& operator=(TextRender&&) = default;
 
+    void draw(glm::mat4 projection);
+
     void set_text(const char* format, ...);
     void set_font(Font& font);
 
-    void draw(glm::mat4 projection);
-
 private:
-    unsigned int VAO, VBO; // TODO: do VAO and VBO need to be free'd?
+    unsigned int VAO = 0, VBO = 0; // TODO: do VAO and VBO need to be free'd?
     std::string text;
-
-    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec2 position = glm::vec2(100.0f, 100.0f);
-    float scale = 1.0f;
 
     Shader program = Shader("src/resources/shaders/glyph.vert", "src/resources/shaders/glyph.frag");
     std::unique_ptr<Font> font;

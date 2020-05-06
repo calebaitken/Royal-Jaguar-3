@@ -10,6 +10,7 @@
 #include "nlohmann/json.hpp"
 
 #include "SpriteRender.h"
+#include "TextRender.h"
 
 using json = nlohmann::json;
 
@@ -21,6 +22,9 @@ public:
     GameObject(const GameObject&) = delete;
     GameObject& operator=(GameObject&) = delete;
 
+    GameObject(GameObject&&) = default;
+    GameObject& operator=(GameObject&&) = default;
+
     virtual void draw(glm::mat4 projection);
     virtual std::list<std::string> update() = 0;
 
@@ -28,15 +32,17 @@ protected:
     SpriteRender sprite;
 };
 
-
 class StaticImage : public GameObject {
 public:
     explicit StaticImage(const std::string& imageFile);
-    explicit StaticImage(json& j);
+    explicit StaticImage(const json& j);
     ~StaticImage() override = default;
 
     StaticImage(const StaticImage&) = delete;
     StaticImage& operator=(StaticImage&) = delete;
+
+    StaticImage(StaticImage&&) = default;
+    StaticImage& operator=(StaticImage&&) = default;
 
     std::list<std::string> update() override {
         return {};
@@ -46,11 +52,14 @@ public:
 class Cursor : public GameObject {
 public:
     explicit Cursor(const std::string& imageFile);
-    explicit Cursor(json& j);
+    explicit Cursor(const json& j);
     ~Cursor() override = default;
 
     Cursor(const Cursor&) = delete;
     Cursor& operator=(Cursor&) = delete;
+
+    Cursor(Cursor&&) = default;
+    Cursor& operator=(Cursor&&) = default;
 
     void draw(glm::mat4 projection) override;
     std::list<std::string> update() override;
@@ -60,19 +69,41 @@ protected:
     bool drawAlt = false;
 };
 
-class Button : public StaticImage {
+class ImageButton : public StaticImage {
 public:
-    explicit Button(json& j);
-    ~Button() override = default;
+    explicit ImageButton(const json& j);
+    ~ImageButton() override = default;
 
-    Button(const Button&) = delete;
-    Button& operator=(Button&) = delete;
+    ImageButton(const ImageButton&) = delete;
+    ImageButton& operator=(ImageButton&) = delete;
+
+    ImageButton(ImageButton&&) = default;
+    ImageButton& operator=(ImageButton&&) = default;
 
     std::list<std::string> update() override;
 
 private:
     std::list<std::string> function;
     bool waiting_release = false;
+};
+
+class Text : public GameObject {
+public:
+    explicit Text(Font font, const std::string& string);
+    explicit Text(json& j);
+    ~Text() override = default;
+
+    Text(const Text&) = delete;
+    Text& operator=(Text&) = delete;
+
+    Text(Text&&) = default;
+    Text& operator=(Text&&) = default;
+
+    void draw(glm::mat4 projection) override;
+    std::list<std::string> update() override;
+
+private:
+    TextRender text;
 };
 
 #endif //ROYAL_JAGUAR_3_GAMEOBJECT_H

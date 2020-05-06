@@ -10,12 +10,13 @@ void GameObject::draw(glm::mat4 projection) {
 }
 
 StaticImage::StaticImage(const std::string& imageFile) {
-    this->sprite.~SpriteRender();
-    new (&this->sprite) SpriteRender(imageFile);
+    this->sprite = SpriteRender(imageFile);
 }
 
-StaticImage::StaticImage(json& j) : StaticImage(std::string(j.at("image"))) {
-    std::cout << j.dump() << std::endl;
+StaticImage::StaticImage(const json& j) {
+    //std::cout << j.dump() << std::endl;
+
+    this->sprite = SpriteRender(j.at("image"));
 
     // SET POSITION
     // set sprite x-position
@@ -76,19 +77,16 @@ StaticImage::StaticImage(json& j) : StaticImage(std::string(j.at("image"))) {
 }
 
 Cursor::Cursor(const std::string& imageFile) {
-    this->sprite.~SpriteRender();
-    new (&this->sprite) SpriteRender(imageFile);
+    this->sprite = SpriteRender(imageFile);
 }
 
-Cursor::Cursor(json &j) {
-    std::cout << j.dump() << std::endl;
+Cursor::Cursor(const json &j) {
+    //std::cout << j.dump() << std::endl;
     for (auto iter = j.at("elements").begin(); iter != j.at("elements").end(); iter++) {
         if ((*iter).at("type") == "_pointer") {
-            this->sprite.~SpriteRender();
-            new (&this->sprite) SpriteRender((*iter).at("image"));
+            this->sprite = SpriteRender((*iter).at("image"));
         } else if ((*iter).at("type") == "_hand") {
-            this->altSprite.~SpriteRender();
-            new (&this->altSprite) SpriteRender((*iter).at("image"));
+            this->altSprite = SpriteRender((*iter).at("image"));
         }
     }
 
@@ -131,13 +129,13 @@ std::list<std::string> Cursor::update() {
     return {};
 }
 
-Button::Button(json &j) : StaticImage(j) {
+ImageButton::ImageButton(const json &j) : StaticImage(j) {
     for (auto iter = j.at("function").begin(); iter != j.at("function").end(); iter++) {
         function.emplace_back((*iter));
     }
 }
 
-std::list<std::string> Button::update() {
+std::list<std::string> ImageButton::update() {
     double xpos, ypos;
     glfwGetCursorPos(glfwGetCurrentContext(), &xpos, &ypos);
 
@@ -159,5 +157,21 @@ std::list<std::string> Button::update() {
         this->sprite.setColour(1.0f, 1.0f, 1.0f);
     }
 
+    return {};
+}
+
+Text::Text(Font font, const std::string &string) {
+    this->text = TextRender(font, string);
+}
+
+Text::Text(json &j) {
+    //std::cout << j.dump() << std::endl;
+}
+
+void Text::draw(glm::mat4 projection) {
+    this->text.draw(projection);
+}
+
+std::list<std::string> Text::update() {
     return {};
 }

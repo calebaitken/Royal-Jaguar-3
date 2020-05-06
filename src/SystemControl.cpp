@@ -3,6 +3,7 @@
 //
 
 // TODO: find small memory leak when reloading scene. can ignore for now.
+// TODO: re-do all constructors
 
 #include "SystemControl.h"
 #include "TextRender.h"
@@ -13,42 +14,41 @@ void Scene::reset() {
         this->objects.erase(this->objects.begin());
     }
 
+    this->objects.clear();
+    this->objects.shrink_to_fit();
+
     this->_host_menu = false;
     this->_join_menu = false;
-}
-
-std::vector<std::unique_ptr<GameObject>> Scene::get_objects() {
-    return std::move(this->objects);
 }
 
 template <typename T>
 void Scene::add_object(std::unique_ptr<T> object) {
     static_assert(std::is_base_of<GameObject, T>::value, "T must inherit from GameObject");
-    this->objects.insert(this->objects.begin(), std::move(object));
+    this->objects.emplace(this->objects.begin(), object.release());
 }
 
 template <typename T>
 void Scene::add_object(std::unique_ptr<T> object, bool first) {
     static_assert(std::is_base_of<GameObject, T>::value, "T must inherit from GameObject");
     if (!first) {
-        this->objects.insert(this->objects.begin(), std::move(object));
+        this->objects.emplace(this->objects.begin(), object.release());
     } else {
-        this->objects.insert(this->objects.end(), std::move(object));
+        this->objects.emplace(this->objects.end(), object.release());
     }
 }
 
 std::list<std::string> Scene::update_all() {
     std::list<std::string> result, value;
-    for (int i = 0; i < objects.size(); i++) {
-        result.splice(result.end(), objects[i].get()->update());
+    for (auto position = this->objects.begin(); position != this->objects.end(); position++) {
+        result.splice(result.end(), (*position)->update());
     }
 
     return result;
 }
 
 void Scene::draw_all(glm::mat4 projection) {
-    for (int i = 0; i < objects.size(); i++) {
-        objects[i].get()->draw(projection);
+    for (auto position = this->objects.begin(); position != this->objects.end(); position++) {
+        (*position)->draw(projection);
     }
 }
 
@@ -62,8 +62,6 @@ void GameLoop::init() {
  */
 void GameLoop::run() {
     std::list<std::string> gameObjectReturns;
-    Font arial("src/resources/fonts/BELL.TTF");
-    TextRender text(arial, "This is a test and i want to see how long i can make it before bad things start to happen bing bong bing bong");
 
     while(this->window.get_state()) {
         // wait for user input
@@ -95,7 +93,6 @@ void GameLoop::run() {
         // draw frame
         this->window.clear_buffer();
         this->scene.draw_all(this->window.get_projection_mat());
-        text.draw(this->window.get_projection_mat());
         this->window.swap_buffer();
 
         // stop clock and find runtime for loop
@@ -109,14 +106,16 @@ void GameLoop::load_scene(const std::string& jsonFile) {
     json j = JsonTools::read_json_file(jsonFile);
     this->scene.reset();
     if (j.at("type") == TYPE_MENU) {
-        // create gameobjects from elements of scene
+        // create gameObjects from elements of scene
         for (auto iter = j.at("elements").begin(); iter != j.at("elements").end(); iter++) {
             if ((*iter).at("type") == TYPE_STATIC_IMAGE) {
                 this->scene.add_object(std::unique_ptr<StaticImage>(new StaticImage(*iter)));
             } else if ((*iter).at("type") == TYPE_CURSOR) {
                 this->scene.add_object(std::unique_ptr<Cursor>(new Cursor(*iter)), true);
-            } else if ((*iter).at("type") == TYPE_BUTTON) {
-                this->scene.add_object(std::unique_ptr<Button>(new Button(*iter)));
+            } else if ((*iter).at("type") == TYPE_IMAGE_BUTTON) {
+                this->scene.add_object(std::unique_ptr<ImageButton>(new ImageButton(*iter)));
+            } else if ((*iter).at("type") == TYPE_TEXT) {
+                this->scene.add_object(std::unique_ptr<Text>(new Text(*iter)));
             }
         }
 

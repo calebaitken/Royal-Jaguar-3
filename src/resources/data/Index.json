@@ -25,7 +25,7 @@
       "flags": []
     },
     {
-      "type": "_button",
+      "type": "_imageButton",
       "xsize": 0.2,
       "ysize": 0.1,
       "xpos": 0.4,
@@ -35,7 +35,7 @@
       "flags": []
     },
     {
-      "type": "_button",
+      "type": "_imageButton",
       "xsize": 0.1,
       "ysize": 0.1,
       "xpos": 0.45,

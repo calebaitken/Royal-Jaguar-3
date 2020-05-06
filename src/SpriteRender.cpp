@@ -6,7 +6,6 @@
 
 Texture2D::Texture2D(const GLchar* file, GLboolean alpha) : width(0), height(0), internalFormat(GL_RGBA), imageFormat(GL_RGBA) {
     glGenTextures(1, &this->ID);
-    std::cout << "texture " << this->ID << " made from: " << file << std::endl;
     if (alpha) {
         this->internalFormat = GL_RGBA;
         this->imageFormat = GL_RGBA;
@@ -17,13 +16,14 @@ Texture2D::Texture2D(const GLchar* file, GLboolean alpha) : width(0), height(0),
     this->generate(imageWidth, imageHeight, image);
 
     SOIL_free_image_data(image);
+    std::cout << "Created OpenGL texture: " << this->ID << " from: " << file << std::endl;
 }
 
-Texture2D::~Texture2D() {
+Texture2D::~Texture2D(){
     //glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDeleteTextures(1, &this->ID);
-    std::cout << "texture " << this->ID << " deleted" << std::endl;
+    std::cout << "Deleted OpenGL texture: " << this->ID << std::endl;
 }
 
 void Texture2D::generate(GLuint width, GLuint height, unsigned char* data) {
@@ -53,9 +53,10 @@ GLuint Texture2D::getHeight() {
     return this->height;
 }
 
-SpriteRender::SpriteRender(const std::string& imageFile) : texture(imageFile.c_str(), GL_TRUE), shaderProgram(VERT_SHADER_FILE, FRAG_SHADER_FILE) {
-    this->rotate = 0.0f;
-    this->size = glm::vec2(this->texture.getWidth(), this->texture.getHeight());
+SpriteRender::SpriteRender(const std::string& imageFile) {
+    this->texture.reset(new Texture2D(imageFile.c_str(), GL_TRUE));
+    this->shaderProgram.reset(new Shader(VERT_SHADER_FILE, FRAG_SHADER_FILE));
+    this->size = glm::vec2(this->texture->getWidth(), this->texture->getHeight());
     unsigned int VBO;
 
     float vertices[] = {
@@ -85,81 +86,17 @@ SpriteRender::SpriteRender(const std::string& imageFile) : texture(imageFile.c_s
     glBindVertexArray(0);
 }
 
-void SpriteRender::setTexture(const std::string& imageFile) {
-    this->texture = Texture2D(imageFile.c_str(), GL_TRUE);
-}
-
-void SpriteRender::setPosition(glm::vec2 newPosition) {
-    this->position = newPosition;
-}
-
-void SpriteRender::setPosition(GLfloat x, GLfloat y) {
-    this->position = glm::vec2(x, y);
-}
-
-void SpriteRender::setPosition(GLfloat x, GLfloat y, bool ratio) {
-    if (ratio) {
-        this->position = glm::vec2(this->position[0] * x, this->position[1] * y);
-    } else {
-        this->position = glm::vec2(x, y);
-    }
-}
-
-glm::vec2 SpriteRender::getPosition() {
-    return glm::vec2(this->position);
-}
-
-void SpriteRender::setSize(glm::vec2 newSize) {
-    this->size = newSize;
-}
-
-void SpriteRender::setSize(GLfloat x, GLfloat y) {
-    this->size = glm::vec2(x, y);
-}
-
-void SpriteRender::setSize(GLfloat x, GLfloat y, bool ratio) {
-    if (ratio) {
-        this->size = glm::vec2(this->size[0] * x, this->size[1] * y);
-    } else {
-        this->size = glm::vec2(x, y);
-    }
-}
-
-glm::vec2 SpriteRender::getSize() {
-    return glm::vec2(this->size);
-}
-
-void SpriteRender::setColour(glm::vec3 newColour) {
-    this->colour = newColour;
-}
-
-void SpriteRender::setColour(GLfloat r, GLfloat g, GLfloat b) {
-    this->colour = glm::vec3(r, b, g);
-}
-
-glm::vec3 SpriteRender::getColour() {
-    return glm::vec3(this->colour);
-}
-
-void SpriteRender::setRotation(GLfloat degrees) {
-    this->rotate = degrees;
-}
-
-GLfloat SpriteRender::getRotation() {
-    return GLfloat(this->rotate);
-}
-
 void SpriteRender::scale_to_width() {
     int width;
     glfwGetWindowSize(glfwGetCurrentContext(), &width, nullptr);
-    this->setSize(width, width * (GLfloat(this->texture.getHeight()) / GLfloat(this->texture.getWidth())));
+    this->setSize(width, width * (GLfloat(this->texture->getHeight()) / GLfloat(this->texture->getWidth())));
 }
 
 void SpriteRender::draw(glm::mat4 projection) {
-    shaderProgram.use();
+    shaderProgram->use();
 
-    this->shaderProgram.setInteger("image", 0);
-    this->shaderProgram.setMatrix4("projection", projection);
+    this->shaderProgram->setInteger("image", 0);
+    this->shaderProgram->setMatrix4("projection", projection);
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(this->position, 0.0f));
@@ -170,12 +107,12 @@ void SpriteRender::draw(glm::mat4 projection) {
 
     model = glm::scale(model, glm::vec3(this->size, 1.0f));
 
-    this->shaderProgram.setMatrix4("model", model);
+    this->shaderProgram->setMatrix4("model", model);
 
-    this->shaderProgram.setVector3f("spriteColour", this->colour);
+    this->shaderProgram->setVector3f("spriteColour", this->colour);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, this->texture.getID());
+    glBindTexture(GL_TEXTURE_2D, this->texture->getID());
 
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
