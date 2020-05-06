@@ -62,8 +62,8 @@ void GameLoop::init() {
  */
 void GameLoop::run() {
     std::list<std::string> gameObjectReturns;
-    Font arial("src/resources/fonts/arial.ttf");
-    TextRender text(arial, "This is a test");
+    Font arial("src/resources/fonts/BELL.TTF");
+    TextRender text(arial, "This is a test and i want to see how long i can make it before bad things start to happen bing bong bing bong");
 
     while(this->window.get_state()) {
         // wait for user input
