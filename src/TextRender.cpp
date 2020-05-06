@@ -132,8 +132,8 @@ void TextRender::draw(glm::mat4 projection) {
         this->program.setInteger("text", 0);
         this->program.setMatrix4("projection", projection);
 
-        float xpos = this->position.x + (glyph.bearing.x * this->scale);
-        float ypos = this->position.y + ((glyph.size.y - glyph.bearing.y) * this->scale);
+        float xpos = this->position.x + glyph.bearing.x * this->scale;
+        float ypos = this->position.y + (glyph.size.y - glyph.bearing.y) * this->scale;
         float w = glyph.size.x * scale;
         float h = -(glyph.size.y * scale);
 
