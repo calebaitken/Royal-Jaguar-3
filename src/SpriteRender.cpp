@@ -6,6 +6,7 @@
 
 Texture2D::Texture2D(const GLchar* file, GLboolean alpha) : width(0), height(0), internalFormat(GL_RGBA), imageFormat(GL_RGBA) {
     glGenTextures(1, &this->ID);
+    std::cout << "Created OpenGL texture: " << this->ID << " from: " << file << std::endl;
     if (alpha) {
         this->internalFormat = GL_RGBA;
         this->imageFormat = GL_RGBA;
@@ -16,7 +17,6 @@ Texture2D::Texture2D(const GLchar* file, GLboolean alpha) : width(0), height(0),
     this->generate(imageWidth, imageHeight, image);
 
     SOIL_free_image_data(image);
-    std::cout << "Created OpenGL texture: " << this->ID << " from: " << file << std::endl;
 }
 
 Texture2D::~Texture2D(){
@@ -71,7 +71,9 @@ SpriteRender::SpriteRender(const std::string& imageFile) {
     };
 
     glGenVertexArrays(1, &this->VAO);
+    std::cout << "Created OpenGL vertex array: " << this->VAO << std::endl;
     glGenBuffers(1, &VBO);
+    std::cout << "Created OpenGL buffer: " << VBO << std::endl;
 
     glBindVertexArray(this->VAO);
 
@@ -82,8 +84,18 @@ SpriteRender::SpriteRender(const std::string& imageFile) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     glBindVertexArray(0);
+
+    glDeleteBuffers(1, &VBO);
+    std::cout << "Deleted OpenGL buffer: " << VBO << std::endl;
+
+}
+
+SpriteRender::~SpriteRender() {
+    this->shaderProgram.reset(nullptr);
+    this->texture.reset(nullptr);
+    glDeleteVertexArrays(1, &this->VAO);
+    std::cout << "Deleted OpenGL vertex array: " << this->VAO << std::endl;
 }
 
 void SpriteRender::scale_to_width() {

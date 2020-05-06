@@ -62,6 +62,8 @@ void GameLoop::init() {
  */
 void GameLoop::run() {
     std::list<std::string> gameObjectReturns;
+    //std::shared_ptr<Font> arial(new Font("src/resources/fonts/arial.ttf"));
+    //TextRender text(arial, "this is a test");
 
     while(this->window.get_state()) {
         // wait for user input
@@ -93,6 +95,7 @@ void GameLoop::run() {
         // draw frame
         this->window.clear_buffer();
         this->scene.draw_all(this->window.get_projection_mat());
+        //text.draw(this->window.get_projection_mat());
         this->window.swap_buffer();
 
         // stop clock and find runtime for loop
@@ -115,7 +118,7 @@ void GameLoop::load_scene(const std::string& jsonFile) {
             } else if ((*iter).at("type") == TYPE_IMAGE_BUTTON) {
                 this->scene.add_object(std::unique_ptr<ImageButton>(new ImageButton(*iter)));
             } else if ((*iter).at("type") == TYPE_TEXT) {
-                this->scene.add_object(std::unique_ptr<Text>(new Text(*iter)));
+                //this->scene.add_object(std::unique_ptr<Text>(new Text(*iter)));
             }
         }
 

@@ -55,7 +55,7 @@ class SpriteRender : public BaseRender {
 public:
     explicit SpriteRender() = default;
     explicit SpriteRender(const std::string& imageFile);
-    ~SpriteRender() = default;
+    ~SpriteRender();
 
     // non-copyable
     SpriteRender(const SpriteRender&) = delete;

@@ -12,9 +12,9 @@ Font::Font(const std::string &fontName) {
 
 Font::~Font() {
     while (!glyphs.empty()) {
-        std::cout << "deleting glyph: " << (*this->glyphs.begin()).second.ID << std::endl;
         glBindTexture(GL_TEXTURE_2D, 0);
         glDeleteTextures(1, &(*this->glyphs.begin()).second.ID);
+        std::cout << "Deleted OpenGL glyph: " << (*this->glyphs.begin()).second.ID << std::endl;
         this->glyphs.erase(this->glyphs.begin());
     }
 }
@@ -43,6 +43,7 @@ void Font::generate_glyphs() {
         // generate texture
         unsigned int texture;
         glGenTextures(1, &texture);
+        std::cout << "Created OpenGL glyph: " << texture << std::endl;
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 
@@ -82,19 +83,31 @@ std::reference_wrapper<Font> FontList::get_font(int fontID) {
 }
 */
 
-TextRender::TextRender(Font& font, const std::string& text) {
-    this->font.reset(&font);
+TextRender::TextRender(const std::shared_ptr<Font>& font, const std::string& text) {
+    this->program.reset(new Shader("src/resources/shaders/glyph.vert", "src/resources/shaders/glyph.frag"));
+    this->font = font;
     this->text = text;
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glGenVertexArrays(1, &this->VAO);
+    std::cout << "Created OpenGL vertex array: " << this->VAO << std::endl;
+    glGenBuffers(1, &this->VBO);
+    std::cout << "Created OpenGL buffer: " << this->VBO << std::endl;
+    glBindVertexArray(this->VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+}
+
+TextRender::~TextRender() {
+    this->font.reset();
+    this->program.reset(nullptr);
+    glDeleteBuffers(1, &this->VBO);
+    std::cout << "Deleted OpenGL buffer: " << this->VBO << std::endl;
+    glDeleteVertexArrays(1, &this->VAO);
+    std::cout << "Deleted OpenGL vertex array: " << this->VAO << std::endl;
 }
 
 void TextRender::set_text(const char* format, ...) {
@@ -106,20 +119,20 @@ void TextRender::set_text(const char* format, ...) {
     va_list ap;
 
     va_start(ap, format);
-    std::vsprintf(buffer, format, ap);
+        std::vsprintf(buffer, format, ap);
     va_end(ap);
 
     this->text.assign(buffer);
 }
 
-void TextRender::set_font(Font& font) {
-    this->font.reset(&font);
+void TextRender::set_font(const std::shared_ptr<Font>& newFont) {
+    this->font = newFont;
 }
 
 void TextRender::draw(glm::mat4 projection) {
     // set gl render state
-    this->program.use();
-    this->program.setVector3f("textColor", this->colour);
+    this->program->use();
+    this->program->setVector3f("textColor", this->colour);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(this->VAO);
 
@@ -129,8 +142,8 @@ void TextRender::draw(glm::mat4 projection) {
     for (auto& character : this->text) {
         Glyph glyph = this->font->get_glyph(character);
 
-        this->program.setInteger("text", 0);
-        this->program.setMatrix4("projection", projection);
+        this->program->setInteger("text", 0);
+        this->program->setMatrix4("projection", projection);
 
         float xpos = this->position.x + glyph.bearing.x * this->size.x;
         float ypos = this->position.y + (glyph.size.y - glyph.bearing.y) * this->size.y;
@@ -149,7 +162,7 @@ void TextRender::draw(glm::mat4 projection) {
 
         glBindTexture(GL_TEXTURE_2D, glyph.ID);
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 

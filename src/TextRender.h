@@ -79,8 +79,8 @@ private:
 class TextRender : BaseRender {
 public:
     explicit TextRender() = default;
-    TextRender(Font& font, const std::string& text);
-    ~TextRender() = default;
+    TextRender(const std::shared_ptr<Font>& font, const std::string& text);
+    ~TextRender();
 
     // non-copyable
     TextRender(const TextRender&) = delete;
@@ -93,14 +93,14 @@ public:
     void draw(glm::mat4 projection);
 
     void set_text(const char* format, ...);
-    void set_font(Font& font);
+    void set_font(const std::shared_ptr<Font>& newFont);
 
 private:
     unsigned int VAO = 0, VBO = 0; // TODO: do VAO and VBO need to be free'd?
     std::string text;
 
-    Shader program = Shader("src/resources/shaders/glyph.vert", "src/resources/shaders/glyph.frag");
-    std::unique_ptr<Font> font;
+    std::unique_ptr<Shader> program;
+    std::shared_ptr<Font> font;
 };
 
 

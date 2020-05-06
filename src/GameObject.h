@@ -29,7 +29,7 @@ public:
     virtual std::list<std::string> update() = 0;
 
 protected:
-    SpriteRender sprite;
+    std::unique_ptr<SpriteRender> sprite;
 };
 
 class StaticImage : public GameObject {
@@ -65,7 +65,7 @@ public:
     std::list<std::string> update() override;
 
 protected:
-    SpriteRender altSprite;
+    std::unique_ptr<SpriteRender> altSprite;
     bool drawAlt = false;
 };
 
