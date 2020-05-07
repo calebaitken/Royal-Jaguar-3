@@ -16,31 +16,34 @@
       "flags": []
     },
     {
-      "type": "_staticImage",
+      "type": "_text",
       "xsize": 0.9,
       "ysize": 0.3,
       "xpos": 0.05,
-      "ypos": 0.1,
-      "image": "src/resources/images/Royal_Jaguar_Title.png",
+      "ypos": 0.3,
+      "text": "Royal Jaguar",
+      "font": "src/resources/fonts/ITCBLKAD.TTF",
       "flags": []
     },
     {
-      "type": "_imageButton",
+      "type": "_textButton",
       "xsize": 0.2,
-      "ysize": 0.1,
+      "ysize": 0,
       "xpos": 0.4,
-      "ypos": 0.5,
-      "image": "src/resources/images/start_game.png",
-      "function": ["_load_scene", "src/resources/data/Index.json"],
+      "ypos": 0.6,
+      "text": "Start Game",
+      "font": "src/resources/fonts/TIMES.TTF",
+      "function": ["_load_scene", "src/resources/data/StartGame.json"],
       "flags": []
     },
     {
-      "type": "_imageButton",
+      "type": "_textButton",
       "xsize": 0.1,
-      "ysize": 0.1,
+      "ysize": 0,
       "xpos": 0.45,
-      "ypos": 0.7,
-      "image": "src/resources/images/quit_game.png",
+      "ypos": 0.8,
+      "text": "Quit",
+      "font": "src/resources/fonts/TIMES.TTF",
       "function": ["_quit_game"],
       "flags": []
     }

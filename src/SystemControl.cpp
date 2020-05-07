@@ -2,8 +2,7 @@
 // Created by caleb on 12/04/2020.
 //
 
-// TODO: find small memory leak when reloading scene. can ignore for now.
-// TODO: re-do all constructors
+// TODO: verify all constructors
 
 #include "SystemControl.h"
 #include "TextRender.h"
@@ -73,7 +72,9 @@ void GameLoop::run() {
         auto start = std::chrono::high_resolution_clock::now();
 
         // get network input
-        // this->network.read_all();
+        if (this->scene._host_menu) {
+            //this->network.read_all();
+        }
 
         // update game state
         gameObjectReturns = this->scene.update_all();
@@ -81,6 +82,7 @@ void GameLoop::run() {
             if ((*iter) == "_load_scene") {
                 iter++;
                 this->load_scene(*iter);
+                glfwPostEmptyEvent();
                 break;
             } else if ((*iter) == "_quit_game") {
                 this->window.terminate();
@@ -118,7 +120,21 @@ void GameLoop::load_scene(const std::string& jsonFile) {
             } else if ((*iter).at("type") == TYPE_IMAGE_BUTTON) {
                 this->scene.add_object(std::unique_ptr<ImageButton>(new ImageButton(*iter)));
             } else if ((*iter).at("type") == TYPE_TEXT) {
-                //this->scene.add_object(std::unique_ptr<Text>(new Text(*iter)));
+                auto position = this->fonts.find((*iter).at("font"));
+                if (position == this->fonts.end()) {
+                    std::shared_ptr<Font> font(new Font((*iter).at("font")));
+                    this->fonts.emplace(std::make_pair((*iter).at("font"), font));
+                }
+
+                this->scene.add_object(std::unique_ptr<Text>(new Text(this->fonts.at((*iter).at("font")), (*iter))));
+            } else if ((*iter).at("type") == TYPE_TEXT_BUTTON) {
+                auto position = this->fonts.find((*iter).at("font"));
+                if (position == this->fonts.end()) {
+                    std::shared_ptr<Font> font(new Font((*iter).at("font")));
+                    this->fonts.emplace(std::make_pair((*iter).at("font"), font));
+                }
+
+                this->scene.add_object(std::unique_ptr<Text>(new TextButton(this->fonts.at((*iter).at("font")), (*iter))));
             }
         }
 
@@ -126,6 +142,14 @@ void GameLoop::load_scene(const std::string& jsonFile) {
         for (auto iter = j.at("flags").begin(); iter != j.at("flags").end(); iter++) {
             if ((*iter) == FLAG_HOST_MENU) {
                 this->scene._host_menu = true;
+                this->network.open_ephemeral();
+                auto position = this->fonts.find(j.at("network").at("IP").at("font"));
+                if (position == this->fonts.end()) {
+                    std::shared_ptr<Font> font(new Font(j.at("network").at("IP").at("font")));
+                    this->fonts.emplace(std::make_pair(j.at("network").at("IP").at("font"), font));
+                }
+
+                this->scene.add_object(std::unique_ptr<Text>(new Text(this->fonts.at(j.at("network").at("IP").at("font")), this->network.get_localhost() + ":" + this->network.get_eph_port(), j.at("network").at("IP"))));
             } else if ((*iter) == FLAG_JOIN_MENU) {
                 this->scene._join_menu = true;
             }

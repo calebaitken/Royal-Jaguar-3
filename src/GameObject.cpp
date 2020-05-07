@@ -78,6 +78,7 @@ StaticImage::StaticImage(const json& j) {
 
 Cursor::Cursor(const std::string& imageFile) {
     this->sprite.reset(new SpriteRender(imageFile));
+    this->update();
 }
 
 Cursor::Cursor(const json &j) {
@@ -92,6 +93,7 @@ Cursor::Cursor(const json &j) {
 
     //this->sprite.setSize(15.0f, 23.7f);
     this->altSprite->setSize(20.0f, 31.0f);
+    this->update();
 }
 
 void Cursor::draw(glm::mat4 projection) {
@@ -160,20 +162,169 @@ std::list<std::string> ImageButton::update() {
     return {};
 }
 
-/*
-Text::Text(Font font, const std::string &string) {
-    this->text = TextRender(font, string);
+
+Text::Text(const std::shared_ptr<Font>& font, const std::string &string) {
+    this->text.reset(new TextRender(font, string));
 }
 
-Text::Text(json &j) {
-    //std::cout << j.dump() << std::endl;
+Text::Text(const std::shared_ptr<Font>& font, const json& j) {
+    std::cout << j.dump() << std::endl;
+
+    this->text.reset(new TextRender(font, j.at("text")));
+
+    // SET POSITION
+    // set text x-position
+    if (j.at("xpos") == 0) {
+        // do nothing
+    } else if (j.at("xpos") < 1) {
+        // set according to ratio
+        this->text->setPosition(glfwGetVideoMode(glfwGetPrimaryMonitor())->width, this->text->getPosition()[1]);
+        this->text->setPosition(j.at("xpos"), 1, true);
+    } else {
+        // set exact
+        this->text->setPosition(j.at("xpos"), this->text->getPosition()[1]);
+    }
+
+    // set text y-position
+    if (j.at("ypos") == 0) {
+        // do nothing
+    } else if (j.at("ypos") < 1) {
+        // set according to ratio
+        this->text->setPosition(this->text->getPosition()[0], glfwGetVideoMode(glfwGetPrimaryMonitor())->height);
+        this->text->setPosition(1, j.at("ypos"), true);
+    } else {
+        // set exact
+        this->text->setPosition(this->text->getPosition()[0], j.at("ypos"));
+    }
+
+    // SET SIZE
+    // set text x-size
+    if (j.at("xsize") == 0) {
+        // do nothing
+    } else if (j.at("xsize") < 1) {
+        // set according to ratio
+        this->text->setSize(glfwGetVideoMode(glfwGetPrimaryMonitor())->width, this->text->getSize()[1]);
+        this->text->setSize(j.at("xsize"), 1, true);
+    } else {
+        // set exact
+        this->text->setSize(j.at("xsize"), this->text->getSize()[1]);
+    }
+
+    // set text y-size
+    if (j.at("ysize") == 0) {
+        this->text->setSize(this->text->getSize()[0], 0);
+    } else if (j.at("ysize") < 1) {
+        // set according to ratio
+        this->text->setSize(this->text->getSize()[0], glfwGetVideoMode(glfwGetPrimaryMonitor())->height);
+        this->text->setSize(1, j.at("ysize"), true);
+    } else {
+        // set exact
+        this->text->setSize(this->text->getSize()[0], j.at("ysize"));
+    }
+
+    // HANDLE FLAGS
+    for (auto iter = j.at("flags").begin(); iter != j.at("flags").end(); iter++) {
+        // TODO: make flags if needed
+    }
 }
+
+Text::Text(const std::shared_ptr<Font>& font, const std::string& string, const json& j) {
+    std::cout << j.dump() << std::endl;
+
+    this->text.reset(new TextRender(font, string));
+
+    // SET POSITION
+    // set text x-position
+    if (j.at("xpos") == 0) {
+        // do nothing
+    } else if (j.at("xpos") < 1) {
+        // set according to ratio
+        this->text->setPosition(glfwGetVideoMode(glfwGetPrimaryMonitor())->width, this->text->getPosition()[1]);
+        this->text->setPosition(j.at("xpos"), 1, true);
+    } else {
+        // set exact
+        this->text->setPosition(j.at("xpos"), this->text->getPosition()[1]);
+    }
+
+    // set text y-position
+    if (j.at("ypos") == 0) {
+        // do nothing
+    } else if (j.at("ypos") < 1) {
+        // set according to ratio
+        this->text->setPosition(this->text->getPosition()[0], glfwGetVideoMode(glfwGetPrimaryMonitor())->height);
+        this->text->setPosition(1, j.at("ypos"), true);
+    } else {
+        // set exact
+        this->text->setPosition(this->text->getPosition()[0], j.at("ypos"));
+    }
+
+    // SET SIZE
+    // set text x-size
+    if (j.at("xsize") == 0) {
+        // do nothing
+    } else if (j.at("xsize") < 1) {
+        // set according to ratio
+        this->text->setSize(glfwGetVideoMode(glfwGetPrimaryMonitor())->width, this->text->getSize()[1]);
+        this->text->setSize(j.at("xsize"), 1, true);
+    } else {
+        // set exact
+        this->text->setSize(j.at("xsize"), this->text->getSize()[1]);
+    }
+
+    // set text y-size
+    if (j.at("ysize") == 0) {
+        this->text->setSize(this->text->getSize()[0], 0);
+    } else if (j.at("ysize") < 1) {
+        // set according to ratio
+        this->text->setSize(this->text->getSize()[0], glfwGetVideoMode(glfwGetPrimaryMonitor())->height);
+        this->text->setSize(1, j.at("ysize"), true);
+    } else {
+        // set exact
+        this->text->setSize(this->text->getSize()[0], j.at("ysize"));
+    }
+
+    // HANDLE FLAGS
+    for (auto iter = j.at("flags").begin(); iter != j.at("flags").end(); iter++) {
+        // TODO: make flags if needed
+    }
+}
+
 
 void Text::draw(glm::mat4 projection) {
-    this->text.draw(projection);
+    this->text->draw(projection);
 }
 
 std::list<std::string> Text::update() {
     return {};
 }
- */
+
+TextButton::TextButton(const std::shared_ptr<Font>& font, const json& j) : Text(font, j) {
+    for (auto iter = j.at("function").begin(); iter != j.at("function").end(); iter++) {
+        function.emplace_back((*iter));
+    }
+}
+
+std::list<std::string> TextButton::update() {
+    double xpos, ypos;
+    glfwGetCursorPos(glfwGetCurrentContext(), &xpos, &ypos);
+
+    if (xpos > this->text->getPosition()[0] && xpos < (this->text->getPosition()[0] + this->text->getSize()[0]) &&
+        ypos < this->text->getPosition()[1] && ypos > (this->text->getPosition()[1] - this->text->getSize()[1])) {
+        this->text->setColour(0.7f, 0.7f, 0.7f);
+        if (waiting_release) {
+            if (glfwGetMouseButton(glfwGetCurrentContext(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+                waiting_release = false;
+                return function;
+            }
+        } else {
+            if (glfwGetMouseButton(glfwGetCurrentContext(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+                waiting_release = true;
+            }
+        }
+    } else {
+        waiting_release = false;
+        this->text->setColour(1.0f, 1.0f, 1.0f);
+    }
+
+    return {};
+}

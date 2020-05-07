@@ -2,6 +2,8 @@
 // Created by caleb on 2020-05-04
 //
 
+// TODO: memory manage this mofo
+
 #include "Window.h"
 
 Window::Window(int width, int height) {

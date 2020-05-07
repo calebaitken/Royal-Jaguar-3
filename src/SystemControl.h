@@ -25,6 +25,7 @@
 #define TYPE_CURSOR "_cursor"
 #define TYPE_IMAGE_BUTTON "_imageButton"
 #define TYPE_TEXT "_text"
+#define TYPE_TEXT_BUTTON "_textButton"
 
 #define FLAG_HOST_MENU "_host_menu"
 #define FLAG_JOIN_MENU "_join_menu"
@@ -64,6 +65,7 @@ public:
 
 private:
     Scene scene;
+    std::map<std::string, std::shared_ptr<Font>> fonts;
     Window window;
     Network network;
 };

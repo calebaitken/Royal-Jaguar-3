@@ -30,7 +30,7 @@ void Font::generate_glyphs() {
         std::cerr << "Failed to created FT_Face / load font" << std::endl;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 48);
+    FT_Set_Pixel_Sizes(face, 0, 1024);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -138,6 +138,25 @@ void TextRender::draw(glm::mat4 projection) {
 
     glm::vec2 resetValue = this->position;
 
+    // find word length
+    float xlen = 0, ylen = 0, yratio, xratio;
+    for (auto& charater : this->text) {
+        Glyph glyph = this->font->get_glyph(charater);
+        xlen += (glyph.advance >> 6);
+        if (glyph.size.y > ylen) {
+            ylen = glyph.size.y;
+        }
+    }
+
+    xratio = this->size.x / xlen;
+
+    if (this->size.y == 0) {
+        this->size.y = ylen * xratio;
+    }
+
+    yratio = this->size.y / ylen;
+
+
     // iterate through text
     for (auto& character : this->text) {
         Glyph glyph = this->font->get_glyph(character);
@@ -145,10 +164,11 @@ void TextRender::draw(glm::mat4 projection) {
         this->program->setInteger("text", 0);
         this->program->setMatrix4("projection", projection);
 
-        float xpos = this->position.x + glyph.bearing.x * this->size.x;
-        float ypos = this->position.y + (glyph.size.y - glyph.bearing.y) * this->size.y;
-        float w = glyph.size.x * this->size.x;
-        float h = -(glyph.size.y * this->size.y);
+        // TODO: wacky math here
+        float xpos = this->position.x + (glyph.bearing.x * xratio);
+        float ypos = this->position.y + (glyph.size.y - glyph.bearing.y) * yratio;
+        float w = glyph.size.x * xratio;
+        float h = -(glyph.size.y * yratio);
 
         float vertices[6][4] = {
                 { xpos,     ypos + h,   0.0f, 0.0f },
@@ -168,7 +188,7 @@ void TextRender::draw(glm::mat4 projection) {
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        this->position.x += (glyph.advance >> 6) * this->size.x;
+        this->position.x += (glyph.advance >> 6) * xratio;
     }
 
     glBindVertexArray(0);

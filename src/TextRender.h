@@ -76,7 +76,7 @@ private:
 };
 */
 
-class TextRender : BaseRender {
+class TextRender : public BaseRender {
 public:
     explicit TextRender() = default;
     TextRender(const std::shared_ptr<Font>& font, const std::string& text);
@@ -96,7 +96,7 @@ public:
     void set_font(const std::shared_ptr<Font>& newFont);
 
 private:
-    unsigned int VAO = 0, VBO = 0; // TODO: do VAO and VBO need to be free'd?
+    unsigned int VAO = 0, VBO = 0;
     std::string text;
 
     std::unique_ptr<Shader> program;

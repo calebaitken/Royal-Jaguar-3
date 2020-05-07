@@ -89,8 +89,9 @@ private:
 
 class Text : public GameObject {
 public:
-    explicit Text(Font font, const std::string& string);
-    explicit Text(json& j);
+    explicit Text(const std::shared_ptr<Font>& font, const std::string& string);
+    explicit Text(const std::shared_ptr<Font>& font, const json& j);
+    explicit Text(const std::shared_ptr<Font>& font, const std::string& string, const json& j);
     ~Text() override = default;
 
     Text(const Text&) = delete;
@@ -102,8 +103,26 @@ public:
     void draw(glm::mat4 projection) override;
     std::list<std::string> update() override;
 
+protected:
+    std::unique_ptr<TextRender> text;
+};
+
+class TextButton : public Text {
+public:
+    explicit TextButton(const std::shared_ptr<Font>& font, const json& j);
+    ~TextButton() override = default;
+
+    TextButton(const TextButton&) = delete;
+    TextButton& operator=(TextButton&) = delete;
+
+    TextButton(TextButton&&) = default;
+    TextButton& operator=(TextButton&&) = default;
+
+    std::list<std::string> update() override;
+
 private:
-    TextRender text;
+    std::list<std::string> function;
+    bool waiting_release = false;
 };
 
 #endif //ROYAL_JAGUAR_3_GAMEOBJECT_H

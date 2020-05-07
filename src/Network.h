@@ -161,6 +161,7 @@ public:
     void read(const SOCKET& s, std::string& data);
 
     std::string get_localhost();
+    std::string get_eph_port();
     std::vector<SOCKET> get_connected_ports();
 
 private:
@@ -173,7 +174,6 @@ private:
 
     std::string localIP;
 
-    // TODO: eph port thread
     // ephemeral port
     bool ephOpen = false;
     SOCKET ephemeralPort;

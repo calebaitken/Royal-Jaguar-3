@@ -233,6 +233,15 @@ std::string Network::get_localhost() {
     return inet_ntoa(loopback.sin_addr);
 }
 
+std::string Network::get_eph_port() {
+    if (!this->ephOpen) {
+        std::cerr << "Network::get_eph_port()" << std::endl << "\tephemeral port not open" << std::endl;
+        return {};
+    }
+
+    return std::to_string(ntohs(((struct sockaddr_in*) this->ephAddr->ai_addr)->sin_port));
+}
+
 bool Network::open_ephemeral() {
     if (this->ephOpen) {
         std::cerr << "Network::open_ephemeral()" << std::endl << "\tephemeral port already open" << std::endl;
