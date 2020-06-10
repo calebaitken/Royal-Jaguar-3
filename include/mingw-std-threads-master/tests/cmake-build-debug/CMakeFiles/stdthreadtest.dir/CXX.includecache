@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/caleb/Project Files/Royal-Jaguar-3/include/mingw-std-threads-master/tests/tests.cpp
+mingw.thread.h
+-
+mingw.mutex.h
+-
+mingw.condition_variable.h
+-
+mingw.shared_mutex.h
+-
+mingw.future.h
+-
+thread
+-
+mutex
+-
+condition_variable
+-
+shared_mutex
+-
+future
+-
+atomic
+-
+cassert
+-
+string
+-
+iostream
+-
+typeinfo
+-
+

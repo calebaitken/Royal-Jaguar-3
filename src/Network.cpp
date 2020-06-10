@@ -4,35 +4,6 @@
 
 #include "Network.h"
 
-/**
- * thread safe push string to back of queue.
- *
- * @param data  reference to string to queue
- */
-template <typename T>
-void ThreadSafeQueue<T>::push(const T& data) {
-    std::lock_guard<std::mutex> lock(this->mutex);
-    this->queue.push_back(data);
-    this->pushCond.notify_all();
-}
-
-/**
- * thread safe pop string from front of queue.
- *
- * @param data  reference to string to load data into
- */
-template <typename T>
-void ThreadSafeQueue<T>::pop(T& data) {
-    std::lock_guard<std::mutex> lock(this->mutex);
-    if (this->queue.empty()) {
-        memset(&data, 0, sizeof(data));
-    } else {
-        data = this->queue.front();
-        this->queue.pop_front();
-        this->popCond.notify_all();
-    }
-}
-
 template <>
 void ThreadSafeQueue<std::string>::pop(std::string& data){
     std::lock_guard<std::mutex> lock(this->mutex);
@@ -148,6 +119,17 @@ Network::~Network() {
  */
 std::vector<SOCKET> Network::get_connected_ports() {
     return this->connectedPorts;
+}
+
+std::string Network::get_IP_of_connected_port(const SOCKET& socket) {
+    struct sockaddr_in addr;
+    int status, size = sizeof(addr);
+
+    if ((status = getpeername(socket, (sockaddr*) &addr, &size)) < 0) {
+        return {};
+    }
+
+    return inet_ntoa(addr.sin_addr);
 }
 
 bool Network::close_socket(SOCKET socket) {

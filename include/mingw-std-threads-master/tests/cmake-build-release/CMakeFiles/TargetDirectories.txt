@@ -1,0 +1,3 @@
+C:/Users/caleb/Project Files/Royal-Jaguar-3/include/mingw-std-threads-master/tests/cmake-build-release/CMakeFiles/stdthreadtest.dir
+C:/Users/caleb/Project Files/Royal-Jaguar-3/include/mingw-std-threads-master/tests/cmake-build-release/CMakeFiles/edit_cache.dir
+C:/Users/caleb/Project Files/Royal-Jaguar-3/include/mingw-std-threads-master/tests/cmake-build-release/CMakeFiles/rebuild_cache.dir

@@ -5,7 +5,8 @@
 #ifndef ROYAL_JAGUAR_3_GAMEOBJECT_H
 #define ROYAL_JAGUAR_3_GAMEOBJECT_H
 
-#include <list>
+#include <utility>
+#include <vector>
 
 #include "nlohmann/json.hpp"
 
@@ -26,7 +27,7 @@ public:
     GameObject& operator=(GameObject&&) = default;
 
     virtual void draw(glm::mat4 projection);
-    virtual std::list<std::string> update() = 0;
+    virtual std::pair<std::string, std::string> update() = 0;
 
 protected:
     std::unique_ptr<SpriteRender> sprite;
@@ -44,7 +45,7 @@ public:
     StaticImage(StaticImage&&) = default;
     StaticImage& operator=(StaticImage&&) = default;
 
-    std::list<std::string> update() override {
+    std::pair<std::string, std::string> update() override {
         return {};
     };
 };
@@ -62,7 +63,7 @@ public:
     Cursor& operator=(Cursor&&) = default;
 
     void draw(glm::mat4 projection) override;
-    std::list<std::string> update() override;
+    std::pair<std::string, std::string> update() override;
 
 protected:
     std::unique_ptr<SpriteRender> altSprite;
@@ -80,10 +81,10 @@ public:
     ImageButton(ImageButton&&) = default;
     ImageButton& operator=(ImageButton&&) = default;
 
-    std::list<std::string> update() override;
+    std::pair<std::string, std::string> update() override;
 
 private:
-    std::list<std::string> function;
+    std::pair<std::string, std::string> function;
     bool waiting_release = false;
 };
 
@@ -101,7 +102,11 @@ public:
     Text& operator=(Text&&) = default;
 
     void draw(glm::mat4 projection) override;
-    std::list<std::string> update() override;
+    std::pair<std::string, std::string> update() override;
+
+    void setPosition(const glm::vec2& newPosition);
+    void setPosition(const GLfloat& x, const GLfloat& y);
+    void setPosition(const GLfloat& x, const GLfloat& y, bool ratio);
 
 protected:
     std::unique_ptr<TextRender> text;
@@ -118,10 +123,10 @@ public:
     TextButton(TextButton&&) = default;
     TextButton& operator=(TextButton&&) = default;
 
-    std::list<std::string> update() override;
+    std::pair<std::string, std::string> update() override;
 
 private:
-    std::list<std::string> function;
+    std::pair<std::string, std::string> function;
     bool waiting_release = false;
 };
 

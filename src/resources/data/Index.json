@@ -44,7 +44,7 @@
       "ypos": 0.8,
       "text": "Quit",
       "font": "src/resources/fonts/TIMES.TTF",
-      "function": ["_quit_game"],
+      "function": ["_quit_game", ""],
       "flags": []
     }
   ],

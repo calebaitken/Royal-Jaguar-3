@@ -104,7 +104,7 @@ void Cursor::draw(glm::mat4 projection) {
     }
 }
 
-std::list<std::string> Cursor::update() {
+std::pair<std::string, std::string> Cursor::update() {
     double xpos, ypos;
     glfwGetCursorPos(glfwGetCurrentContext(), &xpos, &ypos);
 
@@ -132,12 +132,15 @@ std::list<std::string> Cursor::update() {
 }
 
 ImageButton::ImageButton(const json &j) : StaticImage(j) {
+    std::vector<std::string> buffer;
     for (auto iter = j.at("function").begin(); iter != j.at("function").end(); iter++) {
-        function.emplace_back((*iter));
+        buffer.emplace_back((*iter));
     }
+
+    this->function = std::make_pair(buffer[0], buffer[1]);
 }
 
-std::list<std::string> ImageButton::update() {
+std::pair<std::string, std::string> ImageButton::update() {
     double xpos, ypos;
     glfwGetCursorPos(glfwGetCurrentContext(), &xpos, &ypos);
 
@@ -165,6 +168,7 @@ std::list<std::string> ImageButton::update() {
 
 Text::Text(const std::shared_ptr<Font>& font, const std::string &string) {
     this->text.reset(new TextRender(font, string));
+    this->text->setSize(0, 0);
 }
 
 Text::Text(const std::shared_ptr<Font>& font, const json& j) {
@@ -229,7 +233,7 @@ Text::Text(const std::shared_ptr<Font>& font, const json& j) {
 }
 
 Text::Text(const std::shared_ptr<Font>& font, const std::string& string, const json& j) {
-    std::cout << j.dump() << std::endl;
+    //std::cout << j.dump() << std::endl;
 
     this->text.reset(new TextRender(font, string));
 
@@ -294,17 +298,20 @@ void Text::draw(glm::mat4 projection) {
     this->text->draw(projection);
 }
 
-std::list<std::string> Text::update() {
+std::pair<std::string, std::string> Text::update() {
     return {};
 }
 
 TextButton::TextButton(const std::shared_ptr<Font>& font, const json& j) : Text(font, j) {
+    std::vector<std::string> buffer;
     for (auto iter = j.at("function").begin(); iter != j.at("function").end(); iter++) {
-        function.emplace_back((*iter));
+        buffer.emplace_back((*iter));
     }
+
+    this->function = std::make_pair(buffer[0], buffer[1]);
 }
 
-std::list<std::string> TextButton::update() {
+std::pair<std::string, std::string> TextButton::update() {
     double xpos, ypos;
     glfwGetCursorPos(glfwGetCurrentContext(), &xpos, &ypos);
 
@@ -327,4 +334,16 @@ std::list<std::string> TextButton::update() {
     }
 
     return {};
+}
+
+void Text::setPosition(const glm::vec2& newPosition) {
+    this->text->setPosition(newPosition);
+}
+
+void Text::setPosition(const GLfloat &x, const GLfloat &y) {
+    this->text->setPosition(x, y);
+}
+
+void Text::setPosition(const GLfloat &x, const GLfloat &y, bool ratio) {
+    this->text->setPosition(x, y, ratio);
 }

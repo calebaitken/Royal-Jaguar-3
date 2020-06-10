@@ -5,51 +5,6 @@
 // TODO: verify all constructors
 
 #include "SystemControl.h"
-#include "TextRender.h"
-
-void Scene::reset() {
-    while (!this->objects.empty()) {
-        (*this->objects.begin()).reset(nullptr);
-        this->objects.erase(this->objects.begin());
-    }
-
-    this->objects.clear();
-    this->objects.shrink_to_fit();
-
-    this->_host_menu = false;
-    this->_join_menu = false;
-}
-
-template <typename T>
-void Scene::add_object(std::unique_ptr<T> object) {
-    static_assert(std::is_base_of<GameObject, T>::value, "T must inherit from GameObject");
-    this->objects.emplace(this->objects.begin(), object.release());
-}
-
-template <typename T>
-void Scene::add_object(std::unique_ptr<T> object, bool first) {
-    static_assert(std::is_base_of<GameObject, T>::value, "T must inherit from GameObject");
-    if (!first) {
-        this->objects.emplace(this->objects.begin(), object.release());
-    } else {
-        this->objects.emplace(this->objects.end(), object.release());
-    }
-}
-
-std::list<std::string> Scene::update_all() {
-    std::list<std::string> result, value;
-    for (auto position = this->objects.begin(); position != this->objects.end(); position++) {
-        result.splice(result.end(), (*position)->update());
-    }
-
-    return result;
-}
-
-void Scene::draw_all(glm::mat4 projection) {
-    for (auto position = this->objects.begin(); position != this->objects.end(); position++) {
-        (*position)->draw(projection);
-    }
-}
 
 void GameLoop::init() {
     this->window = Window(0, 0);
@@ -60,7 +15,6 @@ void GameLoop::init() {
  * MAIN GAME LOOP
  */
 void GameLoop::run() {
-    std::list<std::string> gameObjectReturns;
     //std::shared_ptr<Font> arial(new Font("src/resources/fonts/arial.ttf"));
     //TextRender text(arial, "this is a test");
 
@@ -72,31 +26,34 @@ void GameLoop::run() {
         auto start = std::chrono::high_resolution_clock::now();
 
         // get network input
-        if (this->scene._host_menu) {
-            //this->network.read_all();
-        }
-
-        // update game state
-        gameObjectReturns = this->scene.update_all();
-        for (auto iter = gameObjectReturns.begin(); iter != gameObjectReturns.end(); iter++) {
-            if ((*iter) == "_load_scene") {
-                iter++;
-                this->load_scene(*iter);
-                glfwPostEmptyEvent();
-                break;
-            } else if ((*iter) == "_quit_game") {
-                this->window.terminate();
-                break;
+        if (this->_host_menu) {
+            if (this->network.accept_connections()) {
+                std::unique_ptr<Text> newText(new Text(this->fonts.at("src/resources/fonts/TIMES.TTF"), this->network.get_IP_of_connected_port(*(this->network.get_connected_ports().end() - 1))));
+                newText->setPosition(100, 200 * (ResourceManager::getInstance().game_objects_size("HOST MENU") + 1));
+                ResourceManager::getInstance().add_game_object("HOST MENU", std::unique_ptr<Text>(newText.release()));
             }
         }
 
-        gameObjectReturns.clear();
+        // update game state
+        ResourceManager::getInstance().update_all_game_objects();
+        std::pair<std::string, std::string> buffer;
+        do {
+            ResourceManager::getInstance().pop_object_returns_queue(buffer);
+            if (buffer.first == "_load_scene") {
+                this->load_scene(buffer.second);
+                ResourceManager::getInstance().clear_game_object_queue();
+            } else if (buffer.first == "_quit_game") {
+                this->window.terminate();
+                ResourceManager::getInstance().clear_game_object_queue();
+            }
+        } while (!(buffer.first.empty() || buffer.second.empty()));
+
 
         // send network output
 
         // draw frame
         this->window.clear_buffer();
-        this->scene.draw_all(this->window.get_projection_mat());
+        ResourceManager::getInstance().draw_all_game_objects(this->window.get_projection_mat());
         //text.draw(this->window.get_projection_mat());
         this->window.swap_buffer();
 
@@ -109,16 +66,18 @@ void GameLoop::run() {
 
 void GameLoop::load_scene(const std::string& jsonFile) {
     json j = JsonTools::read_json_file(jsonFile);
-    this->scene.reset();
+    ResourceManager::getInstance().reset();
+    this->_host_menu = false;
+    this->_join_menu = false;
     if (j.at("type") == TYPE_MENU) {
         // create gameObjects from elements of scene
         for (auto iter = j.at("elements").begin(); iter != j.at("elements").end(); iter++) {
             if ((*iter).at("type") == TYPE_STATIC_IMAGE) {
-                this->scene.add_object(std::unique_ptr<StaticImage>(new StaticImage(*iter)));
+                ResourceManager::getInstance().add_game_object(std::string("STATIC"), std::unique_ptr<StaticImage>(new StaticImage(*iter)));
             } else if ((*iter).at("type") == TYPE_CURSOR) {
-                this->scene.add_object(std::unique_ptr<Cursor>(new Cursor(*iter)), true);
+                ResourceManager::getInstance().add_game_object(std::string("CURSOR"), std::unique_ptr<Cursor>(new Cursor(*iter)));
             } else if ((*iter).at("type") == TYPE_IMAGE_BUTTON) {
-                this->scene.add_object(std::unique_ptr<ImageButton>(new ImageButton(*iter)));
+                ResourceManager::getInstance().add_game_object(std::string("STATIC"), std::unique_ptr<ImageButton>(new ImageButton(*iter)));
             } else if ((*iter).at("type") == TYPE_TEXT) {
                 auto position = this->fonts.find((*iter).at("font"));
                 if (position == this->fonts.end()) {
@@ -126,7 +85,7 @@ void GameLoop::load_scene(const std::string& jsonFile) {
                     this->fonts.emplace(std::make_pair((*iter).at("font"), font));
                 }
 
-                this->scene.add_object(std::unique_ptr<Text>(new Text(this->fonts.at((*iter).at("font")), (*iter))));
+                ResourceManager::getInstance().add_game_object(std::string("TEXT"), std::unique_ptr<Text>(new Text(this->fonts.at((*iter).at("font")), (*iter))));
             } else if ((*iter).at("type") == TYPE_TEXT_BUTTON) {
                 auto position = this->fonts.find((*iter).at("font"));
                 if (position == this->fonts.end()) {
@@ -134,14 +93,14 @@ void GameLoop::load_scene(const std::string& jsonFile) {
                     this->fonts.emplace(std::make_pair((*iter).at("font"), font));
                 }
 
-                this->scene.add_object(std::unique_ptr<Text>(new TextButton(this->fonts.at((*iter).at("font")), (*iter))));
+                ResourceManager::getInstance().add_game_object(std::string("STATIC"), std::unique_ptr<Text>(new TextButton(this->fonts.at((*iter).at("font")), (*iter))));
             }
         }
 
         // set flags
         for (auto iter = j.at("flags").begin(); iter != j.at("flags").end(); iter++) {
             if ((*iter) == FLAG_HOST_MENU) {
-                this->scene._host_menu = true;
+                this->_host_menu = true;
                 this->network.open_ephemeral();
                 auto position = this->fonts.find(j.at("network").at("IP").at("font"));
                 if (position == this->fonts.end()) {
@@ -149,9 +108,9 @@ void GameLoop::load_scene(const std::string& jsonFile) {
                     this->fonts.emplace(std::make_pair(j.at("network").at("IP").at("font"), font));
                 }
 
-                this->scene.add_object(std::unique_ptr<Text>(new Text(this->fonts.at(j.at("network").at("IP").at("font")), this->network.get_localhost() + ":" + this->network.get_eph_port(), j.at("network").at("IP"))));
+                ResourceManager::getInstance().add_game_object(std::string("TEXT"), std::unique_ptr<Text>(new Text(this->fonts.at(j.at("network").at("IP").at("font")), this->network.get_localhost() + ":" + this->network.get_eph_port(), j.at("network").at("IP"))));
             } else if ((*iter) == FLAG_JOIN_MENU) {
-                this->scene._join_menu = true;
+                this->_join_menu = true;
             }
         }
     } else {

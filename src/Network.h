@@ -55,8 +55,32 @@ public:
         return *this;
     };
 
-    void push(const T& data);
-    void pop(T& data);
+    /**
+     * thread safe push string to back of queue.
+     *
+     * @param data  reference to string to queue
+     */
+    void push(const T& data) {
+        std::lock_guard<std::mutex> lock(this->mutex);
+        this->queue.push_back(data);
+        this->pushCond.notify_all();
+    };
+
+    /**
+     * thread safe pop string from front of queue.
+     *
+     * @param data  reference to string to load data into
+     */
+    void pop(T& data) {
+        std::lock_guard<std::mutex> lock(this->mutex);
+        if (this->queue.empty()) {
+            memset(&data, 0, sizeof(data));
+        } else {
+            data = this->queue.front();
+            this->queue.pop_front();
+            this->popCond.notify_all();
+        }
+    };
 
     void wait_for_push();
     void wait_for_pop();
@@ -156,13 +180,13 @@ public:
     bool connect_to(std::string hostname, std::string port);
     bool disconnect();
 
-
     void write(const SOCKET& s, const std::string& data);
     void read(const SOCKET& s, std::string& data);
 
     std::string get_localhost();
     std::string get_eph_port();
     std::vector<SOCKET> get_connected_ports();
+    std::string get_IP_of_connected_port(const SOCKET& socket);
 
 private:
     // winsock data

@@ -30,7 +30,7 @@ void Font::generate_glyphs() {
         std::cerr << "Failed to created FT_Face / load font" << std::endl;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 1024);
+    FT_Set_Pixel_Sizes(face, 0, 100);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -104,6 +104,7 @@ TextRender::TextRender(const std::shared_ptr<Font>& font, const std::string& tex
 TextRender::~TextRender() {
     this->font.reset();
     this->program.reset(nullptr);
+    this->size = glm::vec2(0.0f, 0.0f);
     glDeleteBuffers(1, &this->VBO);
     std::cout << "Deleted OpenGL buffer: " << this->VBO << std::endl;
     glDeleteVertexArrays(1, &this->VAO);
@@ -146,6 +147,10 @@ void TextRender::draw(glm::mat4 projection) {
         if (glyph.size.y > ylen) {
             ylen = glyph.size.y;
         }
+    }
+
+    if (this->size.x == 0) {
+        this->size.x = xlen;
     }
 
     xratio = this->size.x / xlen;

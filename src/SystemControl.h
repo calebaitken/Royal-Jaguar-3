@@ -16,6 +16,8 @@
 #include "Window.h"
 #include "GameObject.h"
 #include "Network.h"
+#include "TextRender.h"
+#include "ResourceManager.h"
 
 #define MAIN_MENU_JSON "src/resources/data/Index.json"
 
@@ -33,26 +35,6 @@
 using json = nlohmann::json;
 
 class GameLoop;
-class Scene;
-
-class Scene {
-public:
-    Scene() = default;
-    ~Scene() = default;
-
-    void reset();
-
-    std::list<std::string> update_all();
-    void draw_all(glm::mat4 projection);
-    template <typename T> void add_object(std::unique_ptr<T> object);
-    template <typename T> void add_object(std::unique_ptr<T> object, bool first);
-
-    bool _host_menu = false;
-    bool _join_menu = false;
-
-private:
-    std::vector<std::unique_ptr<GameObject>> objects;
-};
 
 class GameLoop {
 public:
@@ -64,10 +46,13 @@ public:
     void load_scene(const std::string& jsonFile);
 
 private:
-    Scene scene;
-    std::map<std::string, std::shared_ptr<Font>> fonts;
     Window window;
     Network network;
+
+    std::map<std::string, std::shared_ptr<Font>> fonts;
+
+    bool _host_menu = false;
+    bool _join_menu = false;
 };
 
 #endif //ROYAL_JAGUAR_3_SYSTEMCONTROL_H
