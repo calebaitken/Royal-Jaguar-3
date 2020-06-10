@@ -3,7 +3,7 @@ project(Royal_Jaguar_3)
 
 #option(MINGW_STDTHREADS_GENERATE_STDHEADERS "" ON)
 
-include_directories(include)
+include_directories(src/include)
 include_directories(include/glew-2.1.0/include)
 include_directories(include/glm-master/include)
 include_directories(include/glfw-3.3.2/include)
@@ -37,26 +37,9 @@ add_subdirectory(include/freetype-2.9)
 set(CMAKE_CXX_STANDARD 11)
 
 add_executable(Royal_Jaguar_3
-		src/SystemControl.cpp
-		src/SystemControl.h
-		include/Royal-Jaguar-3/JsonTools.cpp
-		include/Royal-Jaguar-3/include/JsonTools/JsonTools.h
-		src/ShaderProgram.h
-		src/ShaderProgram.cpp
-		src/SpriteRender.cpp
-		src/SpriteRender.h
-		src/Window.cpp
-		src/Window.h
-		src/GameObject.cpp
-		src/GameObject.h
-		src/Network.cpp
-		src/Network.h
-		src/TextRender.cpp
-		src/TextRender.h
-		src/BaseRender.cpp
-		src/BaseRender.h
-		src/ResourceManager.cpp
-		src/ResourceManager.h)
+		src/core/Game.cpp src/include/core/Game.h
+		src/core/Memory.cpp src/include/core/Memory.h
+		src/objects/Empty.cpp src/include/objects/Empty.h)
 
 file(COPY src/resources DESTINATION "${CMAKE_BINARY_DIR}/src")
 file(COPY libs/ DESTINATION "${CMAKE_BINARY_DIR}")

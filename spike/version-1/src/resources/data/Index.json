@@ -1,0 +1,52 @@
+{
+  "type": "_menu",
+  "elements": [
+    {
+      "type": "_cursor",
+      "elements": [
+        {
+          "type": "_pointer",
+          "image": "src/resources/images/cursor_pointer02.png"
+        },
+        {
+          "type": "_hand",
+          "image": "src/resources/images/cursor_hand02.png"
+        }
+      ],
+      "flags": []
+    },
+    {
+      "type": "_text",
+      "xsize": 0.9,
+      "ysize": 0.3,
+      "xpos": 0.05,
+      "ypos": 0.3,
+      "text": "Royal Jaguar",
+      "font": "src/resources/fonts/ITCBLKAD.TTF",
+      "flags": []
+    },
+    {
+      "type": "_textButton",
+      "xsize": 0.2,
+      "ysize": 0,
+      "xpos": 0.4,
+      "ypos": 0.6,
+      "text": "Start Game",
+      "font": "src/resources/fonts/TIMES.TTF",
+      "function": ["_load_scene", "src/resources/data/StartGame.json"],
+      "flags": []
+    },
+    {
+      "type": "_textButton",
+      "xsize": 0.1,
+      "ysize": 0,
+      "xpos": 0.45,
+      "ypos": 0.8,
+      "text": "Quit",
+      "font": "src/resources/fonts/TIMES.TTF",
+      "function": ["_quit_game", ""],
+      "flags": []
+    }
+  ],
+  "flags": []
+}

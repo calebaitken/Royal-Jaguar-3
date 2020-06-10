@@ -1,0 +1,53 @@
+{
+  "type": "_menu",
+  "elements": [
+    {
+      "type": "_cursor",
+      "elements": [
+        {
+          "type": "_pointer",
+          "image": "src/resources/images/cursor_pointer02.png"
+        },
+        {
+          "type": "_hand",
+          "image": "src/resources/images/cursor_hand02.png"
+        }
+      ],
+      "flags": []
+    },
+    {
+      "type": "_textButton",
+      "xsize": 0.1,
+      "ysize": 0,
+      "xpos": 0.45,
+      "ypos": 0.35,
+      "text": "Host",
+      "function": ["_load_scene", "src/resources/data/HostGame.json"],
+      "font": "src/resources/fonts/TIMES.TTF",
+      "flags": []
+    },
+    {
+      "type": "_textButton",
+      "xsize": 0.1,
+      "ysize": 0,
+      "xpos": 0.45,
+      "ypos": 0.55,
+      "text": "Join",
+      "function": ["_load_scene", "src/resources/data/JoinGame.json"],
+      "font": "src/resources/fonts/TIMES.TTF",
+      "flags": []
+    },
+    {
+      "type": "_textButton",
+      "xsize": 0.1,
+      "ysize": 0,
+      "xpos": 0.45,
+      "ypos": 0.75,
+      "text": "Back",
+      "function": ["_load_scene", "src/resources/data/Index.json"],
+      "font": "src/resources/fonts/TIMES.TTF",
+      "flags": []
+    }
+  ],
+  "flags": []
+}
