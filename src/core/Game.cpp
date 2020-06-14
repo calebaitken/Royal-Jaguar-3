@@ -6,8 +6,6 @@
  */
 
 #include "core/Game.h"
-#include "core/Memory.h"
-#include "objects/Empty.h"
 
 /**
  * Main loop
@@ -24,7 +22,13 @@ void GameLoop::run() {
  * TODO: list init steps
  */
 void GameLoop::init() {
+    // init networking
+    this->network.open_ephemeral();
 
+    // init rendering
+        // TODO
+    // init scene
+    this->current_scene = Scene("resources/scenes/index.json");
 }
 
 /**
@@ -38,15 +42,5 @@ int main(int argc, char** argv) {
     GameLoop game;
     //game.init();
     //game.run();
-    std::cout << MemoryManager::getInstance().add_object(std::unique_ptr<Empty>(new Empty())) << std::endl;
-    std::cout << MemoryManager::getInstance().add_object(std::unique_ptr<Empty>(new Empty())) << std::endl;
-    std::cout << MemoryManager::getInstance().add_object(std::unique_ptr<Empty>(new Empty())) << std::endl;
-    std::cout << MemoryManager::getInstance().add_object(std::unique_ptr<Empty>(new Empty())) << std::endl;
-    std::cout << MemoryManager::getInstance().add_object(std::unique_ptr<Empty>(new Empty())) << std::endl;
-    std::cout << MemoryManager::getInstance().add_object(std::unique_ptr<Empty>(new Empty())) << std::endl;
-    MemoryManager::getInstance().free_object(1);
-    std::cout << MemoryManager::getInstance().add_object(std::unique_ptr<Empty>(new Empty())) << std::endl;
-    std::cout << MemoryManager::getInstance().add_object(std::unique_ptr<Empty>(new Empty())) << std::endl;
-    std::cout << MemoryManager::getInstance().get_object<Empty>(2).use_count() << std::endl;
     return 0;
 }

@@ -7,6 +7,4 @@
 
 #include "objects/Empty.h"
 
-/*
- * There is literally nothing here... its your skull
- */
+// This file is empty 4head

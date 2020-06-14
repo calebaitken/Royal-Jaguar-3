@@ -21,7 +21,7 @@ public:
     Empty& operator=(Empty&) = delete;
 
     Empty(Empty&&) = default;
-    Empty& operator=(Empty&&) = delete;
+    Empty& operator=(Empty&&) = default;
 
     void update() final {};
     void draw(glm::mat4 projection) final {};

@@ -1,0 +1,66 @@
+GAME RUN
+    - Open the game and the main menu is immediately displayed
+    MAIN MENU
+        - Static background
+        - Buttons
+            - Create Game
+                - New Screen
+                    - Display IP Address
+                    - Display number of players that have joined
+                        - Username
+                        - Option to kick
+                    - Begin Game
+                        - Immediatly starts game for all players that have joined.
+                    - Back
+                        - Returns to main menu
+            - Join Game
+                - New Screen
+                    - Input for IP address
+                    - Accept
+                        - Attempts to connect to game
+                            - Immediately starts game upon success
+                                (must wait for host it click begin game)
+                    - Back
+                        - Returns to main menu
+            - Exit
+                - Free memory and close application
+
+    GAME
+    - Display the board
+        - static image
+        - HOW TO DISPLAY MORE THAN 2 PLAYERS??
+    - Display all player's cards
+        - Deck
+            - number of cards in deck
+            - empty if 0
+        - Army
+            - Display card type and mode
+                - Number / Face (J, K Q, A)
+                - attack or defence
+                - any buffs
+                - empty if no cards in army
+        - Graveyard
+            - number of cards in graveyard
+            - empty if 0
+        - Hand
+            - number of cards in hand
+            - empty if 0
+    - quit button
+        - returns to main menu and ends the game for all players
+    - On user's turn
+        - display "mana"
+        - start turn
+            - indicate to player that it is their turn
+        - Deploy phase
+            - indicate that it is deploy phase
+            - highlight cards in hand that can be played
+                - click twice to deploy
+                    - reduce mana on deployment
+                    - remove card from hand
+                    - add card to army
+                - click once, then right click to cancel
+        - attack phase
+            - DETAIL
+        - draw
+            - DETAIL
+        - end turn

@@ -11,6 +11,7 @@
 #define ROYAL_JAGUAR_3_GAME_H
 
 #include <string>
+#include "core/Network.h"
 
 // forward declaration
 class GameLoop;
@@ -41,6 +42,10 @@ public:
      * init() MUST be called before calling run()
      */
     void run();
+
+private:
+    Scene current_scene;
+    Network network;
 };
 
 #endif //ROYAL_JAGUAR_3_GAME_H

@@ -3,6 +3,10 @@
  * @date 10/06/2020
  *
  * Memory management source
+ *
+ * TODO:
+ *  - Fix error checking methods; assign correct error level (runtime, warn, fatal, etc.)
+ *  - Comments
  */
 
 #include "core/Memory.h"

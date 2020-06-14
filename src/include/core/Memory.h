@@ -6,6 +6,10 @@
  *
  * @class MemoryManager Singleton object for global control of game resources
  * @class Object Virtual interface for globally managed objects
+ *
+ * TODO:
+ *  - Comment Object
+ *  - Error checking
  */
 
 #ifndef ROYAL_JAGUAR_3_MEMORY_H
@@ -130,7 +134,7 @@ public:
      template<typename T>
     std::weak_ptr<T> get_object(unsigned int ID) {
         static_assert(std::is_base_of<Object, T>::value, "T must inherit from Object");
-        return this->objects.at(ID);
+        return std::dynamic_pointer_cast<T>(this->objects.at(ID));
     } // TODO
 
     /**
@@ -152,6 +156,6 @@ private:
     std::map<unsigned int, std::shared_ptr<Object>> objects;
 
     // for distributing IDs
-    std::deque<unsigned int> nextID = std::deque<unsigned int>(1,0);
+    std::deque<unsigned int> nextID = std::deque<unsigned int>(1, 0);
 };
 #endif //ROYAL_JAGUAR_3_MEMORY_H
