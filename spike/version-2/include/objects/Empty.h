@@ -10,7 +10,7 @@
 #ifndef ROYAL_JAGUAR_3_EMPTY_H
 #define ROYAL_JAGUAR_3_EMPTY_H
 
-#include "objects/Object.h"
+#include "core/Memory.h"
 
 class Empty final : public Object {
 public:

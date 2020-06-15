@@ -24,7 +24,7 @@ void GameLoop::run() {
         // send network outputs
         // draw
         // stop clock, calculate framerate
-    //
+    // }
 }
 
 /**
@@ -33,13 +33,13 @@ void GameLoop::run() {
  * TODO: list init steps
  */
 void GameLoop::init() {
-    // TODO:
-    //  - init networking
+    // init networking
     this->network.open_ephemeral();
 
-    // TODO:
-    //  - init rendering
-    //  - init scene
+    // init rendering
+        // TODO
+    // init scene
+    this->current_scene = Scene("resources/scenes/index.json");
 }
 
 /**

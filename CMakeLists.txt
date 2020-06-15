@@ -38,11 +38,11 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_executable(Royal_Jaguar_3
 		src/core/Game.cpp src/include/core/Game.h
-		src/core/Memory.cpp src/include/core/Memory.h
-		src/objects/Empty.cpp src/include/objects/Empty.h
 		src/include/core/Network.h src/core/Network.cpp
-		src/objects/Player.cpp src/include/objects/Player.h
-		src/include/objects/Card.h)
+		src/include/core/Scene.h src/core/Scene.cpp
+		src/include/core/Input.h src/core/Input.cpp
+		src/include/objects/Object.h
+		src/objects/Empty.cpp src/include/objects/Empty.h)
 
 file(COPY src/resources DESTINATION "${CMAKE_BINARY_DIR}/src")
 file(COPY libs/ DESTINATION "${CMAKE_BINARY_DIR}")

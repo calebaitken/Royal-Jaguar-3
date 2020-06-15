@@ -2,7 +2,7 @@
 // Created by caleb on 17/05/2020.
 //
 
-#include "Scene.h"
+//#include "Scene.h"
 
 void Scene::reset() {
     while (!this->jsonObjects.empty()) {
