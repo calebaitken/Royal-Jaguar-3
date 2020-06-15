@@ -13,7 +13,18 @@
  * TODO: synopsise loop
  */
 void GameLoop::run() {
-
+    // while(window should be open)
+        // wait for user input (glfwWaitEvents();)
+        // begin clock for frame
+        // check for network inputs, add to queue
+        // check for local inputs, add to queue
+        // update all game objects
+            // scene object holds all update classes
+            // iterate and call update, no returns
+        // send network outputs
+        // draw
+        // stop clock, calculate framerate
+    // }
 }
 
 /**

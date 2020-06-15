@@ -10,6 +10,11 @@
 
 #include "objects\Player.h"
 
+Player::Player() {
+    // randomly push DECK_SIZE cards into this.deck
+    // set health
+}
+
 void Player::update() {
 
 }

@@ -27,10 +27,19 @@ public:
     void update() override;
 
 private:
+    // name of the card
     std::array<char, 2> name;
+
+    // base defence value for the card
     int baseDefence;
+
+    // any modifiers to the base defence value
     int modDefence;
+
+    // base attack value for the card
     int baseAttack;
+
+    // any modifiers to the base attack value
     int modAttack;
 };
 
