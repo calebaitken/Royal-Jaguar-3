@@ -12,9 +12,10 @@
 
 #include <string>
 
+#include "core/Input.h"
 #include "core/Network.h"
 #include "core/Scene.h"
-#include "core/Input.h"
+#include "graphics/Window.h"
 
 // forward declaration
 class GameLoop;
@@ -53,6 +54,8 @@ private:
     //  - scene
     Network network;
     Scene scene;
+    Input input;
+    Window window;
 };
 
 #endif //ROYAL_JAGUAR_3_GAME_H

@@ -34,15 +34,17 @@ add_subdirectory(include/json-develop)
 add_subdirectory(include/mingw-std-threads-master)
 add_subdirectory(include/freetype-2.9)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 add_executable(Royal_Jaguar_3
-		src/core/Game.cpp src/include/core/Game.h
+		src/include/core/Memory.h src/core/Memory.cpp
+		src/include/core/Input.h src/core/Input.cpp
 		src/include/core/Network.h src/core/Network.cpp
 		src/include/core/Scene.h src/core/Scene.cpp
-		src/include/core/Input.h src/core/Input.cpp
 		src/include/objects/Object.h
-		src/objects/Empty.cpp src/include/objects/Empty.h)
+		src/objects/Empty.cpp src/include/objects/Empty.h
+		src/core/Game.cpp src/include/core/Game.h
+		src/graphics/Window.cpp src/include/graphics/Window.h)
 
 file(COPY src/resources DESTINATION "${CMAKE_BINARY_DIR}/src")
 file(COPY libs/ DESTINATION "${CMAKE_BINARY_DIR}")

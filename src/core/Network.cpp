@@ -7,30 +7,6 @@
 
 #include "core/Network.h"
 
-template <>
-void ThreadSafeQueue<std::string>::pop(std::string& data){
-    std::lock_guard<std::mutex> lock(this->mutex);
-    if (this->queue.empty()) {
-        data.clear();
-    } else {
-        data.assign(this->queue.front());
-        this->queue.pop();
-        this->popCond.notify_all();
-    }
-}
-
-template <typename T>
-void ThreadSafeQueue<T>::wait_for_pop() {
-    std::unique_lock<std::mutex> lock(this->mutex);
-    popCond.wait(lock);
-}
-
-template <typename T>
-void ThreadSafeQueue<T>::wait_for_push() {
-    std::unique_lock<std::mutex> lock(this->mutex);
-    pushCond.wait(lock);
-}
-
 ReadFunctor::ReadFunctor(const SOCKET& s) {
     this->socket = s;
 }

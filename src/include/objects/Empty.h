@@ -23,7 +23,7 @@ public:
     Empty(Empty&&) = default;
     Empty& operator=(Empty&&) = default;
 
-    void update() final {};
+    void update(std::vector<std::array<unsigned int, 2>> frame) final {};
     void draw(glm::mat4 projection) final {};
 };
 

@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 // Internal key state used for sticky keys
 #define _GLFW_STICK 3
 

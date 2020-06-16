@@ -10,6 +10,8 @@
 #ifndef ROYAL_JAGUAR_3_OBJECT_H
 #define ROYAL_JAGUAR_3_OBJECT_H
 
+#include <vector>
+#include <array>
 #include <glm/glm.hpp>
 
 // forward declaration
@@ -50,7 +52,7 @@ public:
     /**
      * Virtual function called each loop
      */
-    virtual void update() = 0;
+    virtual void update(std::vector<std::array<unsigned int, 2>> frame) = 0;
 };
 
 #endif //ROYAL_JAGUAR_3_OBJECT_H

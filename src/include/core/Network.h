@@ -4,10 +4,9 @@
  *
  * Windows multithreaded TCP/TP socket networking header
  *
- * @class ThreadSafeQueue   Template implementation of a cross-thread queue
- * @class ReadFunctor       Functor object for reading from TCP/IP socket in new thread
- * @class WriteFunctor      Functor object for writing to TCP/IP socket in new thread
- * @class Network           TCP/IP Windows socket controller for client or server
+ * @class ReadFunctor Functor object for reading from TCP/IP socket in new thread
+ * @class WriteFunctor Functor object for writing to TCP/IP socket in new thread
+ * @class Network TCP/IP Windows socket controller for client or server
  */
 
 #ifndef ROYAL_JAGUAR_3_NETWORK_H
@@ -22,91 +21,21 @@
 #include <memory>
 #include <string>
 #include <list>
-#include <queue>
 #include <vector>
-#include <mutex>
 #include <thread>
-#include <condition_variable>
 #include <map>
+
+#include "core/Memory.h"
 
 #define CONNECTION_LIMIT 10
 #define DNS_PORT 53
 #define SOCKET_BUFFER_SIZE 1024
 
 // forward declarations
-template <typename T> class ThreadSafeQueue;
 class ReadFunctor;
 class WriteFunctor;
 class AcceptConnectionFunctor;
 class Network;
-
-/**
- * thread safe queue. contains a mutex that is locked when pushing/popping.
- * cannot be copied but can be moved.
- */
-template <typename T>
-class ThreadSafeQueue {
-public:
-    explicit ThreadSafeQueue() = default;
-    ~ThreadSafeQueue() = default;
-
-    // non-copyable
-    ThreadSafeQueue(const ThreadSafeQueue&) = delete;
-    ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
-
-    // moveable
-    ThreadSafeQueue(ThreadSafeQueue&& other) noexcept {
-        std::unique_lock<std::mutex> lock(other.mutex);
-        this->queue = std::move(other.queue);
-    };
-
-    ThreadSafeQueue& operator=(ThreadSafeQueue&& other) noexcept {
-        if (this != &other) {
-            std::unique_lock<std::mutex> lockThis(this->mutex, std::defer_lock);
-            std::unique_lock<std::mutex> lockOther(other.mutex, std::defer_lock);
-            std::lock(lockThis, lockOther);
-            this->queue = std::move(other.queue);
-        }
-
-        return *this;
-    };
-
-    /**
-     * thread safe push string to back of queue.
-     *
-     * @param data  reference to string to queue
-     */
-    void push(const T& data) {
-        std::lock_guard<std::mutex> lock(this->mutex);
-        this->queue.push(data);
-        this->pushCond.notify_all();
-    };
-
-    /**
-     * thread safe pop string from front of queue.
-     *
-     * @param data  reference to string to load data into
-     */
-    void pop(T& data) {
-        std::lock_guard<std::mutex> lock(this->mutex);
-        if (this->queue.empty()) {
-            memset(&data, 0, sizeof(data));
-        } else {
-            data = this->queue.front();
-            this->queue.pop();
-            this->popCond.notify_all();
-        }
-    };
-
-    void wait_for_push();
-    void wait_for_pop();
-
-private:
-    std::queue<T> queue;
-    std::mutex mutex;
-    std::condition_variable pushCond;
-    std::condition_variable popCond;
-};
 
 class ReadFunctor {
 public:

@@ -16,10 +16,10 @@
  *
  * Iterates through this->objects and calls the virtual update function
  */
-void Scene::update_all() {
+void Scene::update_all(std::vector<std::array<unsigned int, 2>> frame) {
     for (const auto& iter : this->objects) {
         try {
-            iter.second->update();
+            iter.second->update(frame);
         } catch (int e) {
             std::cerr << "Could not update object " << iter.first << std::endl;
         }
@@ -31,9 +31,9 @@ void Scene::update_all() {
  *
  * @param ID ID of object to update
  */
-void Scene::update(unsigned int ID) {
+void Scene::update(unsigned int ID, std::vector<std::array<unsigned int, 2>> frame) {
     try {
-        this->objects.find(ID)->second->update();
+        this->objects.find(ID)->second->update(frame);
     } catch (int e) {
         std::cerr << "Could not update object " << ID << std::endl;
     }

@@ -57,14 +57,14 @@ public:
     /**
      * Update all stored objects.
      */
-    void update_all();
+    void update_all(std::vector<std::array<unsigned int, 2>> frame);
 
     /**
      * Update specified object
      *
      * @param ID ID of object to update
      */
-    void update(unsigned int ID);
+    void update(unsigned int ID, std::vector<std::array<unsigned int, 2>> frame);
 
     /**
      * Moves Object to globally access location.
