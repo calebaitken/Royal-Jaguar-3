@@ -30,7 +30,7 @@ void GameLoop::run() {
 
         // get local inputs
         {
-            std::array<unsigned int, 2> buffer = {0, 0};
+            std::array<unsigned int, 2> buffer;
             this->input.pop(buffer);
             // TODO: also do something with buffer
         }
@@ -65,15 +65,12 @@ void GameLoop::run() {
  */
 void GameLoop::init() {
     // TODO:
-    //  - init networking
-    //      this->network.open_ephemeral();
-
-    // TODO:
-    //  - init rendering
     //  - init scene
 
     this->window = Window(0, 0);
+    this->network.open_ephemeral();
     this->input.init();
+    //this->scene.reload_scene();
 }
 
 /**

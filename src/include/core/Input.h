@@ -3,21 +3,6 @@
  * @date 15/06/2020
  *
  * Input control header
- *
- *                                                 ,  ,
- *                                                / \/ \
- *                                               (/ //_ \_
- *      .-._                                      \||  .  \
- *       \  '-._                            _,:__.-"/---\_ \
- *  ______/___  '.    .--------------------'~-'--.)__( , )\ \
- * `'--.___  _\  /    |                         ,'    \)|\ `\|
- *      /_.-' _\ \ _:,_            HERE BE            " ||   (
- *    .'__ _.' \'-/,`-~`        D R A G O N S           |/
- *        '. ___.> /=,|                                 |
- *         / .-'/_ )  '---------------------------------'
- *    snd  )'  ( /(/
- *              \\ "
- *               '=='
  */
 
 #ifndef ROYAL_JAGUAR_3_INPUT_H
@@ -33,7 +18,23 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
+// forward declaration
 class Input;
+typedef struct _action action;
+
+/**
+ * Plain Old Data (POD) // TODO: finish this comment
+ *
+ * Actions that can be made:
+ *  • Playing a card from hand
+ *  • Attacking a card
+ *  • Ending turn
+ */
+typedef struct _action {
+    char from;
+    char to;
+
+} Action;
 
 class Input {
 public:
