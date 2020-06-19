@@ -3,7 +3,6 @@ project(Royal_Jaguar_3)
 
 #option(MINGW_STDTHREADS_GENERATE_STDHEADERS "" ON)
 
-include_directories(src/include)
 include_directories(include/glew-2.1.0/include)
 include_directories(include/glm-master/include)
 include_directories(include/glfw-3.3.2/include)
@@ -36,17 +35,15 @@ add_subdirectory(include/freetype-2.9)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Royal_Jaguar_3
-		src/include/core/Memory.h src/core/Memory.cpp
-		src/include/core/Input.h src/core/Input.cpp
-		src/include/core/Network.h src/core/Network.cpp
-		src/include/core/Scene.h src/core/Scene.cpp
-		src/include/objects/Object.h
-		src/objects/Empty.cpp src/include/objects/Empty.h
-		src/core/Game.cpp src/include/core/Game.h
-		src/graphics/Window.cpp src/include/graphics/Window.h)
+add_executable(Royal_Jaguar_3_client
+		src/client/src/core/Loop.cpp src/client/src/include/core/Loop.h)
+target_include_directories(Royal_Jaguar_3_client PUBLIC src/client/src/include)
+target_link_libraries(Royal_Jaguar_3_client freetype nlohmann_json glfw glew -lglu32 -lopengl32 glm soil -lWs2_32)
+
+add_executable(Royal_Jaguar_3_server
+		src/server/src/core/Main.cpp src/server/src/include/core/Main.h)
+target_include_directories(Royal_Jaguar_3_server PUBLIC src/server/src/include)
+target_link_libraries(Royal_Jaguar_3_server freetype nlohmann_json glfw glew -lglu32 -lopengl32 glm soil -lWs2_32)
 
 file(COPY src/resources DESTINATION "${CMAKE_BINARY_DIR}/src")
 file(COPY libs/ DESTINATION "${CMAKE_BINARY_DIR}")
-
-target_link_libraries(Royal_Jaguar_3 freetype nlohmann_json glfw glew -lglu32 -lopengl32 glm soil -lWs2_32)
