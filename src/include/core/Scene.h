@@ -14,11 +14,14 @@
 #define ROYAL_JAGUAR_3_SCENE_H
 
 #include <iostream>
+#include <sstream>
 #include <memory>
 #include <string>
 #include <map>
 #include <deque>
+
 #include "objects/Object.h"
+#include "objects/Empty.h"
 
 // forward declaration
 class Scene;
@@ -48,7 +51,7 @@ public:
      *
      * @param file File to load from
      */
-    void reload_scene(std::string file);
+    void reload_scene(std::istream& stream);
 
     // TODO:
     //  - void draw_all()
@@ -100,6 +103,8 @@ public:
      * @param ID Object ID to free
      */
     void free_object(unsigned int ID);
+
+    void serialise(std::ostream& stream);
 
 private:
     /**

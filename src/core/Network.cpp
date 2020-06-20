@@ -75,8 +75,8 @@ Network::Network() {
     }
 
     // get LAN address
-    this->localIP = this->get_localhost();
-    std::cout << this->localIP << std::endl;
+    this->localIP = this->get_localhost_helper();
+    //std::cout << this->localIP << std::endl;
 }
 
 Network::~Network() {
@@ -160,7 +160,7 @@ bool Network::close_socket(SOCKET socket) {
  *
  * @return  a std::string containing the local IP address.
  */
-std::string Network::get_localhost() {
+std::string Network::get_localhost_helper() {
     int status;
     SOCKET sockfd;
     sockaddr_in loopback;
@@ -248,7 +248,8 @@ bool Network::open_ephemeral() {
     //    return false;
     //}
 
-    std::cout << ntohs(((struct sockaddr_in*) this->ephAddr->ai_addr)->sin_port) << std::endl;
+    // TODO
+    //std::cout << ntohs(((struct sockaddr_in*) this->ephAddr->ai_addr)->sin_port) << std::endl;
 
     this->ephAcceptFunctor = AcceptConnectionFunctor(this->ephemeralPort);
     this->ephAcceptThread = std::thread(std::ref(this->ephAcceptFunctor));
@@ -276,7 +277,7 @@ bool Network::close_ephemeral() {
     }
 }
 
-/*
+/* TODO
 bool Network::accept_connections() {
     if (!this->ephOpen) {
         std::cerr << "Network::accept_connections()" << std::endl << "\tEphemeral port has not been opened, cannot accept connections" << std::endl;
@@ -340,4 +341,8 @@ void Network::write(const SOCKET &s, const std::string &data) {
     }
 
     (*iofunctor).second.second.push(data);
+}
+
+std::string Network::get_localhost() {
+    return std::string(this->localIP);
 }

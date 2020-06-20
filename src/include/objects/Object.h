@@ -12,6 +12,8 @@
 
 #include <vector>
 #include <array>
+#include <fstream>
+#include <iostream>
 #include <glm/glm.hpp>
 
 // forward declaration
@@ -53,6 +55,13 @@ public:
      * Virtual function called each loop
      */
     virtual void update(std::vector<std::array<unsigned int, 2>> frame) = 0;
+
+    /**
+     * Writes this object in binary form to the given ostream
+     *
+     * @param ostream Stream to write to
+     */
+    virtual void serialise(std::ostream& stream) const = 0;
 };
 
 #endif //ROYAL_JAGUAR_3_OBJECT_H

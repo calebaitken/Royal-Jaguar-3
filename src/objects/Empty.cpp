@@ -7,4 +7,20 @@
 
 #include "objects/Empty.h"
 
-// This file is empty 4head
+#include <memory>
+
+void Empty::serialise(std::ostream& stream) const {
+    if(!stream.good()) {
+        std::cerr << "ostream.good() failed!" << std::endl;
+    }
+
+    stream << "Empty:";
+}
+
+std::unique_ptr<Empty> Empty::deserialise(std::istream& stream) {
+    if(!stream.good()) {
+        std::cerr << "ostream.good() failed!" << std::endl;
+    }
+
+    return std::make_unique<Empty>(Empty());
+}

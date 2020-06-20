@@ -44,7 +44,8 @@ add_executable(Royal_Jaguar_3
 		src/include/objects/Object.h
 		src/objects/Empty.cpp src/include/objects/Empty.h
 		src/core/Game.cpp src/include/core/Game.h
-		src/graphics/Window.cpp src/include/graphics/Window.h)
+		src/graphics/Window.cpp src/include/graphics/Window.h
+		src/objects/Card.cpp src/include/objects/Card.h)
 
 file(COPY src/resources DESTINATION "${CMAKE_BINARY_DIR}/src")
 file(COPY libs/ DESTINATION "${CMAKE_BINARY_DIR}")

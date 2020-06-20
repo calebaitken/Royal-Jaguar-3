@@ -20,7 +20,17 @@
 
 // forward declaration
 class Input;
-typedef struct _action action;
+struct CardPosistion;
+typedef struct action Action;
+
+/**
+ * Plain Old data (POD) // TODO: finish the comment
+ *
+ */
+struct CardPosistion {
+    char collection;    // Deck = d; Army = a; Graveyard = g; Hand = h.
+    unsigned int index; // position in given collection
+};
 
 /**
  * Plain Old Data (POD) // TODO: finish this comment
@@ -30,10 +40,11 @@ typedef struct _action action;
  *  • Attacking a card
  *  • Ending turn
  */
-typedef struct _action {
-    char from;
-    char to;
-
+typedef struct action {
+    unsigned int player;            // assign players integers when a game is started
+    std::array<char, 2> cardName;
+    CardPosistion from;
+    CardPosistion to;
 } Action;
 
 class Input {

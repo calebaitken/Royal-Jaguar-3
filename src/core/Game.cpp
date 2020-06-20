@@ -7,12 +7,63 @@
 
 #include "core/Game.h"
 
+void GameLoop::setup_game() {
+    std::string fake("Empty:;Empty:;Empty:;");
+    std::stringstream fakeSocket1(fake, std::ios::in);
+    this->scene.reload_scene(fakeSocket1);
+    std::stringstream fakeSocket2(fake, std::ios::in);
+    this->scene.reload_scene(fakeSocket2);
+    std::stringstream fakeSocket3(fake, std::ios::in);
+    this->scene.reload_scene(fakeSocket3);
+    return;
+
+    char mode;
+
+    do {
+        std::cout << "Host or Join (H/J): ";
+        std::cin >> mode;
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    } while (!(mode == 'H' || mode == 'J'));
+
+    if (mode == 'H') {
+        this->network.open_ephemeral();
+        std::cout << this->network.get_localhost() << ":" << this->network.get_eph_port() << std::endl;
+        // TODO:
+        //  create new game state
+        //  display ip & port
+        //  while not starting game
+        //      if connection found
+        //          verify, update game state
+        //          send to all other connections
+        //  send game state to all players
+        //      send sizeof list of Objects
+        //      send list of objects
+        //  play_game
+    } else if (mode == 'J') {
+        // TODO:
+        //  connect to host
+        //  verify connection
+        //  wait for game state
+        //      check special code
+        //      get number of objects
+        //      create that many objects in scene
+        //  play_game
+    }
+}
+
 /**
  * Main loop
  *
  * TODO: synopsise loop
  */
-void GameLoop::run() {
+void GameLoop::play_game() {
+    // start graphics
+    this->window = Window(0, 0);
+
+    // start input
+    this->input.init();
+
     while(window.get_state()) {
         // wait for event
         glfwWaitEvents();
@@ -59,21 +110,6 @@ void GameLoop::run() {
 }
 
 /**
- * Initialise game
- *
- * TODO: list init steps
- */
-void GameLoop::init() {
-    // TODO:
-    //  - init scene
-
-    this->window = Window(0, 0);
-    this->network.open_ephemeral();
-    this->input.init();
-    //this->scene.reload_scene();
-}
-
-/**
  * Entry point
  *
  * @param argv  commandline argument count
@@ -82,7 +118,8 @@ void GameLoop::init() {
  */
 int main(int argc, char** argv) {
     GameLoop game;
-    game.init();
-    game.run();
+    game.setup_game();
+    //game.setup_game();
+    //game.play_game();
     return 0;
 }

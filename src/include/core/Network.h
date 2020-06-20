@@ -109,6 +109,11 @@ private:
     SOCKET socket;
 };
 
+/**
+ * TCP/IP Windows socket controller for client or server
+ *
+ * TODO: review setters and getters (localhost)
+ */
 class Network {
 public:
     explicit Network();
@@ -129,11 +134,14 @@ public:
     void read(const SOCKET& s, std::string& data);
 
     std::string get_localhost();
+
     std::string get_eph_port();
     std::vector<SOCKET> get_connected_ports();
     std::string get_IP_of_connected_port(const SOCKET& socket);
 
 private:
+    std::string get_localhost_helper();
+
     // winsock data
     WSADATA wsaData;
 

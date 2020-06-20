@@ -28,6 +28,8 @@
 //========================================================================
 
 #include "tinycthread.h"
+#include "../../../src/include/objects/Empty.h"
+
 
 #include <glad/gl.h>
 #define GLFW_INCLUDE_NONE
@@ -130,3 +132,14 @@ int main(void)
     exit(EXIT_SUCCESS);
 }
 
+void Empty::serialise(std::ostream
+
+& ostream) const{
+
+}
+
+void Empty::serialise(std::ostream
+
+& ostream) const{
+
+}

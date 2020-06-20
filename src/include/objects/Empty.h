@@ -10,11 +10,14 @@
 #ifndef ROYAL_JAGUAR_3_EMPTY_H
 #define ROYAL_JAGUAR_3_EMPTY_H
 
+#include <memory>
+
 #include "objects/Object.h"
 
 class Empty final : public Object {
 public:
     explicit Empty() = default;
+    static std::unique_ptr<Empty> deserialise(std::istream& stream);
     ~Empty() final = default;
 
     Empty(const Empty&) = delete;
@@ -25,6 +28,8 @@ public:
 
     void update(std::vector<std::array<unsigned int, 2>> frame) final {};
     void draw(glm::mat4 projection) final {};
+
+    void serialise(std::ostream& stream) const final;
 };
 
 #endif //ROYAL_JAGUAR_3_EMPTY_H
