@@ -53,6 +53,7 @@ public:
 
     /**
      * Virtual function called each loop
+     * FIXME and all inheritors
      */
     virtual void update(std::vector<std::array<unsigned int, 2>> frame) = 0;
 
