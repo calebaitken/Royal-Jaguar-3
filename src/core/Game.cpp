@@ -9,12 +9,15 @@
 
 void GameLoop::setup_game() {
     std::string fake("Empty:;Empty:;Empty:;");
-    std::stringstream fakeSocket1(fake, std::ios::in);
+    Card cardObj;
+    std::stringstream fakeSocket1;
+    cardObj.serialise(fakeSocket1);
+
     this->scene.reload_scene(fakeSocket1);
-    std::stringstream fakeSocket2(fake, std::ios::in);
-    this->scene.reload_scene(fakeSocket2);
-    std::stringstream fakeSocket3(fake, std::ios::in);
-    this->scene.reload_scene(fakeSocket3);
+    //std::stringstream fakeSocket2(fake, std::ios::binary);
+    //this->scene.reload_scene(fakeSocket2);
+    //std::stringstream fakeSocket3(fake, std::ios::binary);
+    //this->scene.reload_scene(fakeSocket3);
     return;
 
     char mode;

@@ -8,6 +8,7 @@
 #ifndef ROYAL_JAGUAR_3_CARD_H
 #define ROYAL_JAGUAR_3_CARD_H
 
+#include <memory>
 #include "objects/Object.h"
 
 class Card;
@@ -16,6 +17,9 @@ class Card : public Object {
 public:
     /// Default constructor
     explicit Card() = default;
+
+    /// Deserialisation constructor
+    static std::unique_ptr<Card> deserialise(std::istream& stream);
 
     /// Default destructor
     ~Card() override = default;
@@ -38,12 +42,14 @@ public:
     // TODO
     void update(std::vector<std::array<unsigned int, 2>> frame) override {};
 
+    void serialise(std::ostream& stream) const override;
+
 private:
-    std::array<char, 2> name;
-    int baseAttack;
-    int attackMods;
-    int baseDefence;
-    int defenceMods;
+    std::array<char, 2> name{'A', 'A'};
+    int baseAttack = 0;
+    int attackMods = 0;
+    int baseDefence = 0;
+    int defenceMods = 0;
 
     // TODO Sprite
 };

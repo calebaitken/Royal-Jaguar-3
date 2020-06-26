@@ -20,7 +20,7 @@ public:
     static std::unique_ptr<Empty> deserialise(std::istream& stream);
     ~Empty() final = default;
 
-    Empty(const Empty&) = delete;
+    //std::unique_ptr<Empty> Empty(const Empty&) = delete;
     Empty& operator=(Empty&) = delete;
 
     Empty(Empty&&) = default;

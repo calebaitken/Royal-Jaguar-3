@@ -11,6 +11,8 @@
 
 #include "core/Scene.h"
 
+#include <memory>
+
 /**
  * Updates all stored objects.
  *
@@ -89,25 +91,69 @@ void Scene::reload_scene(std::istream& stream) {
         free_object((object)->first);
     }
 
-    std::string buffer, id, objDelimiter = ";", idDelimiter = ":";
-    size_t objend = 0, idend = 0;
-    stream >> buffer;
-    while ((objend = buffer.find(objDelimiter)) != std::string::npos) {
-        std::stringstream obj(buffer.substr(0, objend), std::ios::in);
-        if ((idend = buffer.find(idDelimiter)) != std::string::npos) {
-            id = buffer.substr(0, idend);
-            if (id == "Empty") {
-                this->add_object(std::move(Empty::deserialise(obj)));
-            }
+    unsigned int nextReadSize = 0;
+    char* buffer = (char*) calloc(1024, sizeof(char));
+    std::string objType;
+    std::stringstream subStream;
+    do {
+        std::cout << std::endl << "Now extracting next extract size . . . ";
+        stream.read(reinterpret_cast<char*>(&nextReadSize), sizeof(unsigned int));
+        if (!stream.good()) {
+            std::cout << "FAILED" << std::endl;
+            std::cerr << "Extracting size of next read failed" << std::endl;
+            break;
         }
-        buffer.erase(0, objend + objDelimiter.length());
-    }
+        std::cout << "SUCCESS" << std::endl;
+
+        std::cout << "Now extracting " << nextReadSize << " bytes . . . ";
+        stream.read(reinterpret_cast<char*>(buffer), nextReadSize);
+        if (!stream.good()) {
+            std::cout << "FAILED" << std::endl;
+            std::cerr << "Extracting next object type failed" << std::endl;
+            break;
+        }
+        std::cout << "SUCCESS" << std::endl;
+
+        buffer[nextReadSize] = '\0';
+        objType.assign(buffer);
+
+        std::cout << "Now extracting size of " << objType << " . . . ";
+        stream.read(reinterpret_cast<char*>(&nextReadSize), sizeof(unsigned int));
+        if (!stream.good()) {
+            std::cout << "FAILED" << std::endl;
+            std::cerr << "Extracting size of object failed" << std::endl;
+            break;
+        }
+        std::cout << "SUCCESS" << std::endl;
+
+        std::cout << "Now extracting " << nextReadSize << " bytes . . . ";
+        stream.read(reinterpret_cast<char*>(buffer), nextReadSize);
+        if (!stream.good()) {
+            std::cout << "FAILED" << std::endl;
+            std::cerr << "Extracting object failed" << std::endl;
+            break;
+        }
+        std::cout << "SUCCESS" << std::endl;
+
+        buffer[nextReadSize] = '\0';
+        subStream.write(reinterpret_cast<const char*>(buffer), sizeof(buffer));
+
+        std::cout << "Appending " << objType << " to scene . . . " << std::endl;
+        if (objType == "Empty") {
+            this->add_object(std::move(Empty::deserialise(subStream)));
+        } else if (objType == "Card") {
+            this->add_object(std::move(Card::deserialise(subStream)));
+        }
+
+    } while (!stream.eof());
 
     std::cout << "{";
     for (const auto& object : this->objects) {
         std::cout << "(" << object.first << ", " << object.second << ");";
     }
     std::cout << "}" << std::endl;
+
+    free(buffer);
 }
 
 void Scene::serialise(std::ostream& stream) {

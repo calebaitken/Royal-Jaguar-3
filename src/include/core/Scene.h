@@ -22,6 +22,7 @@
 
 #include "objects/Object.h"
 #include "objects/Empty.h"
+#include "objects/Card.h"
 
 // forward declaration
 class Scene;

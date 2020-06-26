@@ -1,0 +1,9 @@
+text
+    object name (std::string) length (unsigned int)
+        object name (std::string)
+    object length (unsigned int)
+        variable one length (unsigned int)
+            variable one
+        ...
+        variable X length (unsigned int)
+            variable X
