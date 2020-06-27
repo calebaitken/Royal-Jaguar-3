@@ -136,8 +136,9 @@ public:
     std::string get_localhost();
 
     std::string get_eph_port();
-    std::vector<SOCKET> get_connected_ports();
-    std::string get_IP_of_connected_port(const SOCKET& socket);
+    std::vector<SOCKET> get_connected_sockets();
+    std::string get_IP_of_connected_socket(const SOCKET& socket);
+    std::string get_port_of_connected_socket(const SOCKET& socket);
 
 private:
     std::string get_localhost_helper();

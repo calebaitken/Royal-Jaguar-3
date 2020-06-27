@@ -46,10 +46,10 @@ public:
 
 private:
     std::array<char, 2> name{'A', 'A'};
-    int baseAttack = 0;
-    int attackMods = 0;
-    int baseDefence = 0;
-    int defenceMods = 0;
+    int baseAttack;
+    int attackMods;
+    int baseDefence;
+    int defenceMods;
 
     // TODO Sprite
 };

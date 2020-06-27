@@ -20,7 +20,7 @@ public:
     static std::unique_ptr<Empty> deserialise(std::istream& stream);
     ~Empty() final = default;
 
-    //std::unique_ptr<Empty> Empty(const Empty&) = delete;
+    //std::unique_ptr<Empty> Empty(const Empty&) = delete; // TODO: i dont know why i put this here but it broke everything. was there a reason?
     Empty& operator=(Empty&) = delete;
 
     Empty(Empty&&) = default;

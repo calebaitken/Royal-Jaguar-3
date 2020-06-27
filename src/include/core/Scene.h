@@ -19,6 +19,7 @@
 #include <string>
 #include <map>
 #include <deque>
+#include <string.h>
 
 #include "objects/Object.h"
 #include "objects/Empty.h"

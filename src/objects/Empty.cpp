@@ -31,5 +31,6 @@ std::unique_ptr<Empty> Empty::deserialise(std::istream& stream) {
         std::cerr << "istream.good() failed!" << std::endl;
     }
 
+    std::cout << "\tCreating new object . . . SUCCESS" << std::endl;
     return std::make_unique<Empty>(Empty());
 }

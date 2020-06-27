@@ -96,11 +96,11 @@ Network::~Network() {
  *
  * @return  copy of list of connected sockets
  */
-std::vector<SOCKET> Network::get_connected_ports() {
+std::vector<SOCKET> Network::get_connected_sockets() {
     return this->connectedPorts;
 }
 
-std::string Network::get_IP_of_connected_port(const SOCKET& socket) {
+std::string Network::get_IP_of_connected_socket(const SOCKET& socket) {
     struct sockaddr_in addr;
     int status, size = sizeof(addr);
 
@@ -310,7 +310,7 @@ bool Network::accept_connections() {
     if (s == 0) {
         return false;
     } else {
-        std::cout << "adding socket: " << s << std::endl;
+        //std::cout << "adding socket: " << s << std::endl;
         this->connectedPorts.emplace_back(s);
         ReadFunctor newRead(s);
         WriteFunctor newWrite(s);
@@ -345,4 +345,15 @@ void Network::write(const SOCKET &s, const std::string &data) {
 
 std::string Network::get_localhost() {
     return std::string(this->localIP);
+}
+
+std::string Network::get_port_of_connected_socket(const SOCKET &socket) {
+    struct sockaddr_in addr;
+    int status, size = sizeof(addr);
+
+    if ((status = getpeername(socket, (sockaddr*) &addr, &size)) < 0) {
+        return {};
+    }
+
+    return std::to_string(ntohs(addr.sin_port));
 }

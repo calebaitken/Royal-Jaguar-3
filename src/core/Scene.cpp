@@ -94,32 +94,32 @@ void Scene::reload_scene(std::istream& stream) {
     unsigned int nextReadSize = 0;
     char* buffer = (char*) calloc(1024, sizeof(char));
     std::string objType;
-    std::stringstream subStream;
+    std::stringstream subStream(std::ios::app | std::ios::out | std::ios::in | std::ios::binary);
     do {
         std::cout << std::endl << "Now extracting next extract size . . . ";
         stream.read(reinterpret_cast<char*>(&nextReadSize), sizeof(unsigned int));
-        if (!stream.good()) {
-            std::cout << "FAILED" << std::endl;
+        if (stream.fail()) {
+            std::cout << "FAILED" << std::endl << std::endl;
             std::cerr << "Extracting size of next read failed" << std::endl;
             break;
         }
         std::cout << "SUCCESS" << std::endl;
 
         std::cout << "Now extracting " << nextReadSize << " bytes . . . ";
+        memset(&buffer[0], 0, sizeof(buffer));
         stream.read(reinterpret_cast<char*>(buffer), nextReadSize);
-        if (!stream.good()) {
+        if (stream.fail()) {
             std::cout << "FAILED" << std::endl;
             std::cerr << "Extracting next object type failed" << std::endl;
             break;
         }
         std::cout << "SUCCESS" << std::endl;
 
-        buffer[nextReadSize] = '\0';
         objType.assign(buffer);
 
         std::cout << "Now extracting size of " << objType << " . . . ";
         stream.read(reinterpret_cast<char*>(&nextReadSize), sizeof(unsigned int));
-        if (!stream.good()) {
+        if (stream.fail()) {
             std::cout << "FAILED" << std::endl;
             std::cerr << "Extracting size of object failed" << std::endl;
             break;
@@ -127,16 +127,18 @@ void Scene::reload_scene(std::istream& stream) {
         std::cout << "SUCCESS" << std::endl;
 
         std::cout << "Now extracting " << nextReadSize << " bytes . . . ";
+        memset(&buffer[0], 0, sizeof(buffer));
         stream.read(reinterpret_cast<char*>(buffer), nextReadSize);
-        if (!stream.good()) {
+        if (stream.fail()) {
             std::cout << "FAILED" << std::endl;
             std::cerr << "Extracting object failed" << std::endl;
             break;
         }
         std::cout << "SUCCESS" << std::endl;
 
-        buffer[nextReadSize] = '\0';
-        subStream.write(reinterpret_cast<const char*>(buffer), sizeof(buffer));
+        std::cout << "Creating substream of size " << nextReadSize << " . . . ";
+        subStream.write(reinterpret_cast<const char*>(&buffer[0]), nextReadSize);
+        std::cout << "SUCCESS" << std::endl;
 
         std::cout << "Appending " << objType << " to scene . . . " << std::endl;
         if (objType == "Empty") {

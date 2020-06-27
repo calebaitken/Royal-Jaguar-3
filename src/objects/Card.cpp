@@ -25,7 +25,9 @@ void Card::serialise(std::ostream &stream) const {
     stream.write(reinterpret_cast<const char*>(&objSize), sizeof(unsigned int));
     // data
     stream.write(reinterpret_cast<const char*>(&nameSize), sizeof(unsigned int));
-    stream.write(reinterpret_cast<const char*>(this->name.data()), nameSize);
+    for (int i = 0; i < nameSize; i++) {
+        stream.write(reinterpret_cast<const char*>(&this->name[i]), 1);
+    }
     stream.write(reinterpret_cast<const char*>(&this->baseAttack), sizeof(int));
     stream.write(reinterpret_cast<const char*>(&this->attackMods), sizeof(int));
     stream.write(reinterpret_cast<const char*>(&this->baseDefence), sizeof(int));
@@ -38,7 +40,7 @@ std::unique_ptr<Card> Card::deserialise(std::istream &stream) {
         std::cerr << "istream.good() failed" << std::endl;
     }
 
-    std::unique_ptr<Card> returnCard;
+    Card returnCard;
 
     unsigned int nextReadSize;
     char* buffer = (char*) calloc(1024, sizeof(char));
@@ -47,7 +49,7 @@ std::unique_ptr<Card> Card::deserialise(std::istream &stream) {
 
     std::cout << "\tExtracting size of name . . . ";
     stream.read(reinterpret_cast<char*>(&nextReadSize), sizeof(unsigned int));
-    if (!stream.good()) {
+    if (stream.fail()) {
         std::cout << "FAILED" << std::endl;
         std::cerr << "Extracting size of name failed" << std::endl;
         return nullptr;
@@ -56,7 +58,7 @@ std::unique_ptr<Card> Card::deserialise(std::istream &stream) {
 
     std::cout << "\tNow extracting " << nextReadSize << " bytes . . . ";
     stream.read(reinterpret_cast<char*>(buffer), nextReadSize);
-    if (!stream.good()) {
+    if (stream.fail()) {
         std::cout << "FAILED" << std::endl;
         std::cerr << "Extracting name failed" << std::endl;
         return nullptr;
@@ -77,49 +79,51 @@ std::unique_ptr<Card> Card::deserialise(std::istream &stream) {
     // FIXME: cannot read the int from the stream
     std::cout << "\tNow extracting " << sizeof(int) << " bytes . . . ";
     stream.read(reinterpret_cast<char*>(extractedInt), sizeof(int));
-    if (!stream.good()) {
+    if (stream.fail()) {
         std::cout << "FAILED" << std::endl;
         std::cerr << "Extracting base attack failed" << std::endl;
         return nullptr;
     }
     std::cout << "SUCCESS" << std::endl;
 
-    returnCard->baseAttack = *extractedInt;
+    returnCard.baseAttack = *extractedInt;
 
     std::cout << "\tNow extracting " << sizeof(int) << " bytes . . . ";
     stream.read(reinterpret_cast<char*>(extractedInt), sizeof(int));
-    if (!stream.good()) {
+    if (stream.fail()) {
         std::cout << "FAILED" << std::endl;
         std::cerr << "Extracting attack mods failed" << std::endl;
         return nullptr;
     }
     std::cout << "SUCCESS" << std::endl;
 
-    returnCard->attackMods = *extractedInt;
+    returnCard.attackMods = *extractedInt;
 
     std::cout << "\tNow extracting " << sizeof(int) << " bytes . . . ";
     stream.read(reinterpret_cast<char*>(extractedInt), sizeof(int));
-    if (!stream.good()) {
+    if (stream.fail()) {
         std::cout << "FAILED" << std::endl;
         std::cerr << "Extracting base defence failed" << std::endl;
         return nullptr;
     }
     std::cout << "SUCCESS" << std::endl;
 
-    returnCard->baseDefence = *extractedInt;
+    returnCard.baseDefence = *extractedInt;
 
     std::cout << "\tNow extracting " << sizeof(int) << " bytes . . . ";
     stream.read(reinterpret_cast<char*>(extractedInt), sizeof(int));
-    if (!stream.good()) {
+    if (stream.fail()) {
         std::cout << "FAILED" << std::endl;
         std::cerr << "Extracting defence mods failed" << std::endl;
         return nullptr;
     }
     std::cout << "SUCCESS" << std::endl;
 
-    returnCard->defenceMods = *extractedInt;
+    returnCard.defenceMods = *extractedInt;
 
     free(buffer);
     free(extractedInt);
-    return std::unique_ptr<Card>(returnCard.release());
+
+    std::cout << "\tCreating new object . . . SUCCESS" << std::endl;
+    return std::make_unique<Card>(std::move(returnCard));
 }

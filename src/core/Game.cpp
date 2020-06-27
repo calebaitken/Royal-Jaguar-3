@@ -8,42 +8,63 @@
 #include "core/Game.h"
 
 void GameLoop::setup_game() {
-    std::string fake("Empty:;Empty:;Empty:;");
-    Card cardObj;
-    std::stringstream fakeSocket1;
-    cardObj.serialise(fakeSocket1);
+    char mode, cont;
+    int playerCount = 0;
 
-    this->scene.reload_scene(fakeSocket1);
-    //std::stringstream fakeSocket2(fake, std::ios::binary);
-    //this->scene.reload_scene(fakeSocket2);
-    //std::stringstream fakeSocket3(fake, std::ios::binary);
-    //this->scene.reload_scene(fakeSocket3);
-    return;
-
-    char mode;
-
+    // get mode
     do {
-        std::cout << "Host or Join (H/J): ";
+        std::cout << "Please enter lobby mode; Host or Join (H/J): ";
         std::cin >> mode;
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     } while (!(mode == 'H' || mode == 'J'));
 
-    if (mode == 'H') {
-        this->network.open_ephemeral();
-        std::cout << this->network.get_localhost() << ":" << this->network.get_eph_port() << std::endl;
+    if (mode == 'H') {  // host mode
         // TODO:
-        //  create new game state
-        //  display ip & port
-        //  while not starting game
-        //      if connection found
-        //          verify, update game state
+        //  display ip & port                       DONE
+        //  while not starting game                 DONE
+        //      if connection found                 DONE
+        //          verify, update game state       add verification to Network class, not here
         //          send to all other connections
+        //  create new game state
         //  send game state to all players
         //      send sizeof list of Objects
         //      send list of objects
         //  play_game
-    } else if (mode == 'J') {
+
+        // get the required number of players
+        std::cout << "Enter the number of other players waiting to join: ";
+        std::cin >> playerCount;
+        while(std::cin.fail() || playerCount < 1) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "ERROR: re-enter number of other players waiting to join: ";
+            std::cin >> playerCount;
+        }
+
+        // open the eph port and display to user
+        this->network.open_ephemeral();
+        std::cout << this->network.get_localhost() << ":" << this->network.get_eph_port() << std::endl;
+        std::cout << "Waiting for players . . . " << std::endl;
+
+        // accept connections until we hit the required amount
+        while (this->network.get_connected_sockets().size() < playerCount) {
+            if (this->network.accept_connections()) {
+                std::cout << "\tPlayer " << this->network.get_IP_of_connected_socket(this->network.get_connected_sockets().back()) << ":" << this->network.get_port_of_connected_socket(this->network.get_connected_sockets().back()) << " connected!" << std::endl;
+            }
+        }
+
+        // for each socket in network, send the IP & port to all other sockets
+        for (auto thisSocket : this->network.get_connected_sockets()) {
+            for (auto otherSocket : this->network.get_connected_sockets()) {
+                if (thisSocket != otherSocket) {
+                    this->network.write(otherSocket, this->network.get_IP_of_connected_socket(thisSocket) + ":" + this->network.get_port_of_connected_socket(thisSocket));
+                }
+            }
+        }
+
+
+    } else if (mode == 'J') {   // join mode
         // TODO:
         //  connect to host
         //  verify connection
@@ -75,7 +96,7 @@ void GameLoop::play_game() {
         auto start = std::chrono::high_resolution_clock::now();
 
         // get network inputs
-        for (auto connection : this->network.get_connected_ports()) {
+        for (auto connection : this->network.get_connected_sockets()) {
             std::string buffer;
             this->network.read(connection, buffer);
             // TODO: do something with the data from the connection
@@ -94,7 +115,7 @@ void GameLoop::play_game() {
         // TODO: create data type that can be used to tell each object what inputs have come in?
 
         // send network outputs
-        for (auto connection : this->network.get_connected_ports()) {
+        for (auto connection : this->network.get_connected_sockets()) {
             this->network.write(connection, "something");
             // TODO: get information that must be sent to player
         }
