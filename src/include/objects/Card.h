@@ -44,8 +44,9 @@ public:
 
     void serialise(std::ostream& stream) const override;
 
+    std::array<char, 2> name{'A', 'A'}; // FIXME: made public fro debugging
 private:
-    std::array<char, 2> name{'A', 'A'};
+
     int baseAttack;
     int attackMods;
     int baseDefence;

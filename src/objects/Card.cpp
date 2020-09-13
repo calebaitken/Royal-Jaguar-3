@@ -15,7 +15,7 @@ void Card::serialise(std::ostream &stream) const {
     std::string className = "Card";
     unsigned int classNameSize, nameSize, objSize;
     classNameSize = className.size();
-    nameSize = this->name.size();
+    nameSize = 2; // number of chars in name
     objSize = (sizeof(int) * 4) + (nameSize + sizeof(unsigned int));
 
     std::cout << "Serialising Card . . . ";
@@ -72,8 +72,8 @@ std::unique_ptr<Card> Card::deserialise(std::istream &stream) {
         std::cerr << "Extracted name has incorrect parameters" << std::endl;
         return nullptr;
     } else {
-        //returnCard->name[0] = name[0]; // FIXME: this causes a segfault
-        //returnCard->name[1] = name[1];
+        returnCard.name[0] = name[0]; // FIXME: this causes a segfault. fixed?
+        returnCard.name[1] = name[1];
     }
 
     // FIXME: cannot read the int from the stream

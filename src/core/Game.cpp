@@ -7,6 +7,9 @@
 
 #include "core/Game.h"
 
+#include <memory>
+#include <objects/Deck.h>
+
 void GameLoop::setup_game() {
     char mode, cont;
     int playerCount = 0;
@@ -25,7 +28,7 @@ void GameLoop::setup_game() {
         //  while not starting game                 DONE
         //      if connection found                 DONE
         //          verify, update game state       add verification to Network class, not here
-        //          send to all other connections
+        //          send to all other connections   DONE
         //  create new game state
         //  send game state to all players
         //      send sizeof list of Objects
@@ -50,7 +53,8 @@ void GameLoop::setup_game() {
         // accept connections until we hit the required amount
         while (this->network.get_connected_sockets().size() < playerCount) {
             if (this->network.accept_connections()) {
-                std::cout << "\tPlayer " << this->network.get_IP_of_connected_socket(this->network.get_connected_sockets().back()) << ":" << this->network.get_port_of_connected_socket(this->network.get_connected_sockets().back()) << " connected!" << std::endl;
+                std::cout << "\tPlayer " << this->network.get_IP_of_connected_socket(this->network.get_connected_sockets().back()) << ":"
+                << this->network.get_port_of_connected_socket(this->network.get_connected_sockets().back()) << " connected!" << std::endl;
             }
         }
 
@@ -63,6 +67,14 @@ void GameLoop::setup_game() {
             }
         }
 
+        // generate game
+        // for each player
+            // create player
+                // set player number
+                // link with socket (?)
+            // give cards
+        // distribute game state
+        // verify
 
     } else if (mode == 'J') {   // join mode
         // TODO:
@@ -141,9 +153,16 @@ void GameLoop::play_game() {
  * @return      exit status
  */
 int main(int argc, char** argv) {
-    GameLoop game;
-    game.setup_game();
-    //game.setup_game();
-    //game.play_game();
+//    GameLoop game;
+//    game.setup_game();
+//    game.play_game();
+    Scene scene;
+    std::unique_ptr<Deck> deck = std::make_unique<Deck>();
+    std::stringstream stream(std::ios::app | std::ios::in | std::ios::out | std::ios::binary);
+    deck->cards.emplace_front(std::make_unique<Card>());
+    scene.add_object(std::make_unique<Card>());
+    scene.add_object(std::unique_ptr<Deck>(deck.release()));
+    scene.serialise(stream);
+    scene.reload_scene(stream);
     return 0;
 }

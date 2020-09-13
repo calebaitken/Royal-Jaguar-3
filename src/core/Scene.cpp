@@ -12,6 +12,7 @@
 #include "core/Scene.h"
 
 #include <memory>
+#include <objects/Deck.h>
 
 /**
  * Updates all stored objects.
@@ -98,7 +99,10 @@ void Scene::reload_scene(std::istream& stream) {
     do {
         std::cout << std::endl << "Now extracting next extract size . . . ";
         stream.read(reinterpret_cast<char*>(&nextReadSize), sizeof(unsigned int));
-        if (stream.fail()) {
+        if (stream.eof()) {
+            std::cout << "EOF" << std::endl << std::endl;
+            break;
+        } else if (stream.fail()) {
             std::cout << "FAILED" << std::endl << std::endl;
             std::cerr << "Extracting size of next read failed" << std::endl;
             break;
@@ -145,7 +149,10 @@ void Scene::reload_scene(std::istream& stream) {
             this->add_object(std::move(Empty::deserialise(subStream)));
         } else if (objType == "Card") {
             this->add_object(std::move(Card::deserialise(subStream)));
+        } else if (objType == "Deck") {
+            this->add_object(std::move(Deck::deserialise(subStream)));
         }
+        std::cout << "DONE" << std::endl;
 
     } while (!stream.eof());
 
@@ -165,6 +172,6 @@ void Scene::serialise(std::ostream& stream) {
 
     for (const auto& object : this->objects) {
         object.second->serialise(stream);
-        stream << ";";
+        //stream << ";"; FIXME: removed because this should be binary stream?
     }
 }

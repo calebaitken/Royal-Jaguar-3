@@ -116,7 +116,7 @@ private:
      */
     unsigned int get_next_id();
 
-    /// stores all objects in a map
+    /// stores all objects in a map. Use dynamic_cast<>() to "unslice"
     std::map<unsigned int, std::shared_ptr<Object>> objects;
 
     /// for distributing IDs
