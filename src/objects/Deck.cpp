@@ -12,13 +12,16 @@ void Deck::serialise(std::ostream &stream) const {
     std::string className = "Deck";
     unsigned int classNameSize, objSize;
     classNameSize = className.size();
-    objSize = ((sizeof(int) * 4) + (2 + sizeof(unsigned int)) + (2 * sizeof(unsigned int)) + (4)) * cards.size();
+    // Card Header: int, char[4], int
+    // Card Data: int, char[2], int, int, int, int
+    objSize = ((sizeof(int) * 4) + (2 + sizeof(unsigned int)) + (2 * sizeof(unsigned int)) + 4) * cards.size();
 
     std::cout << "Serialising Deck . . . ";
     // header
     stream.write(reinterpret_cast<const char*>(&classNameSize), sizeof(unsigned int));
     stream.write(reinterpret_cast<const char*>(className.c_str()), classNameSize);
     stream.write(reinterpret_cast<const char*>(&objSize), sizeof(unsigned int));
+
     // data
     for (const auto& card : this->cards) {
         std::cout.setstate(std::ios_base::failbit);
@@ -92,5 +95,38 @@ std::unique_ptr<Deck> Deck::deserialise(std::istream &stream) {
         returnDeck.cards.emplace_front(std::move(Card::deserialise(subStream)));
     } while (!stream.eof());
 
+    free(buffer);
     return std::make_unique<Deck>(std::move(returnDeck));
+}
+
+void Deck::add_card_front(std::unique_ptr<Card> card) {
+    this->cards.emplace_front(std::move(card));
+}
+
+void Deck::add_card_back(std::unique_ptr<Card> card) {
+    this->cards.emplace_back(std::move(card));
+}
+
+std::unique_ptr<Card> Deck::remove_card_back() {
+    std::unique_ptr<Card> rtn(this->cards.back().release());
+    this->cards.pop_back();
+    return std::unique_ptr<Card>(rtn.release());
+}
+
+std::unique_ptr<Card> Deck::remove_card_front() {
+    std::unique_ptr<Card> rtn(this->cards.front().release());
+    this->cards.pop_front();
+    return std::unique_ptr<Card>(rtn.release());
+}
+
+/**
+ * Randomises the order of elements in the deque
+ */
+void Deck::shuffle() {
+    unsigned int seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::shuffle(this->cards.begin(), this->cards.end(), std::default_random_engine(seed));
+}
+
+int Deck::size() {
+    return this->cards.size();
 }

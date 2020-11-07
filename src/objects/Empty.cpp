@@ -14,7 +14,7 @@ void Empty::serialise(std::ostream& stream) const {
         std::cerr << "ostream.good() failed!" << std::endl;
     }
 
-    std::string className = "Empty";
+    const std::string className = "Empty";
     unsigned int classNameSize = className.length(), objSize = 0;
 
     std::cout << "Serialising Empty . . . ";

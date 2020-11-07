@@ -16,7 +16,7 @@ void Card::serialise(std::ostream &stream) const {
     unsigned int classNameSize, nameSize, objSize;
     classNameSize = className.size();
     nameSize = 2; // number of chars in name
-    objSize = (sizeof(int) * 4) + (nameSize + sizeof(unsigned int));
+    objSize = (sizeof(int) * 4) + nameSize + sizeof(unsigned int);
 
     std::cout << "Serialising Card . . . ";
     // header

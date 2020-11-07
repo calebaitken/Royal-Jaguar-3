@@ -12,6 +12,9 @@
 #include <deque>
 #include <sstream>
 #include <memory.h>
+#include <algorithm>
+#include <random>
+#include <chrono>
 #include "objects/Object.h"
 #include "objects/Card.h"
 
@@ -49,8 +52,23 @@ public:
 
     void serialise(std::ostream& stream) const override;
 
-    std::deque<std::unique_ptr<Card>> cards; // FIXME: amde public for debugging
+    void add_card_front(std::unique_ptr<Card> card);
+
+    void add_card_back(std::unique_ptr<Card> card);
+
+    std::unique_ptr<Card> remove_card_back();
+
+    std::unique_ptr<Card> remove_card_front();
+
+    int size();
+
+    /**
+     * Randomises the order of elements in the deque
+     */
+    void shuffle();
+
 private:
+    std::deque<std::unique_ptr<Card>> cards;
 };
 
 #endif //ROYAL_JAGUAR_3_DECK_H
