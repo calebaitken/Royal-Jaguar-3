@@ -165,7 +165,7 @@ void Scene::reload_scene(std::istream& stream) {
     free(buffer);
 }
 
-void Scene::serialise(std::ostream& stream) {
+void Scene::serialise(std::ostream& stream) const {
     if (!stream.good()) {
         std::cerr << "stream.good() failed!" << std::endl;
     }

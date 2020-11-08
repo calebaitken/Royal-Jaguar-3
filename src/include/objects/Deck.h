@@ -60,7 +60,7 @@ public:
 
     std::unique_ptr<Card> remove_card_front();
 
-    int size();
+    int size() const;
 
     /**
      * Randomises the order of elements in the deque

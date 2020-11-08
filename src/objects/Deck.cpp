@@ -127,6 +127,6 @@ void Deck::shuffle() {
     std::shuffle(this->cards.begin(), this->cards.end(), std::default_random_engine(seed));
 }
 
-int Deck::size() {
+int Deck::size() const {
     return this->cards.size();
 }

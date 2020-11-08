@@ -106,7 +106,7 @@ public:
      */
     void free_object(unsigned int ID);
 
-    void serialise(std::ostream& stream);
+    void serialise(std::ostream& stream) const;
 
 private:
     /**

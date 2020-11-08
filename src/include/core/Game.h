@@ -48,6 +48,8 @@ public:
     void setup_game();
 
 private:
+    void distribute_state();
+
     /// Handles all networking operations
     Network network;
 

@@ -25,8 +25,11 @@ void Player::serialise(std::ostream &stream) const {
     stream.write(reinterpret_cast<const char*>(className.c_str()), classNameSize);
     stream.write(reinterpret_cast<const char*>(&objSize), sizeof(unsigned int));
 
-    // data
+    // data - without the data printing it's own info
+    std::cout.setstate(std::ios_base::failbit);
     deck->serialise(stream);
+    std::cout.clear();
+    std::cout << "DONE" << std::endl;
 }
 
 std::unique_ptr<Player> Player::deserialise(std::istream &stream) {
@@ -76,7 +79,6 @@ std::unique_ptr<Player> Player::deserialise(std::istream &stream) {
     if (stream.fail()) {
         std::cout << "FAILED" << std::endl;
         std::cerr << "Extracting object failed" << std::endl;
-        break;
     }
     std::cout << "SUCCESS" << std::endl;
 
@@ -93,6 +95,10 @@ std::unique_ptr<Player> Player::deserialise(std::istream &stream) {
     return std::make_unique<Player>(std::move(returnPlayer));
 }
 
-std::shared_ptr<const Deck> Player::get_deck() {
+std::shared_ptr<Deck> Player::get_deck() const {
     return this->deck;
+}
+
+void Player::set_socket(SOCKET& socket) {
+    this->socketPtr = std::make_shared<SOCKET>(socket);
 }

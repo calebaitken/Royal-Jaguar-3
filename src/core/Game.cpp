@@ -5,10 +5,27 @@
  * Program entry point & main loop source
  */
 
+// todo: make all const functions const
+
 #include "core/Game.h"
 
 #include <memory>
 #include <objects/Deck.h>
+#include <objects/Player.h>
+
+void GameLoop::distribute_state() {
+    // fixme: this is too complex
+    std::stringstream stateStream(std::ios::app | std::ios::in | std::ios::out | std::ios::binary);
+    this->scene.serialise(stateStream);
+    stateStream.seekg(0, std::ios_base::end);
+    int bufsize = stateStream.tellg();
+    stateStream.seekg(std::ios_base::beg);
+    char* buffer = (char*) calloc(bufsize, sizeof(char));
+    stateStream.read(buffer, bufsize);
+    for (auto player : this->network.get_connected_sockets()) {
+        this->network.write(player, std::string(buffer));
+    }
+}
 
 void GameLoop::setup_game() {
     char mode, cont;
@@ -68,12 +85,16 @@ void GameLoop::setup_game() {
 
         // generate game
         // for each player
-            // create player
-                // set player number
-                // link with socket (?)
-            // give cards
-        // distribute game state
-        // verify
+        for (int i = 0; i < this->network.get_connected_sockets().size(); i++) {
+            std::unique_ptr<Player> newPlayer = std::make_unique<Player>();
+            newPlayer->set_socket(this->network.get_connected_sockets().at(i));
+            // todo: add cards to the player's deck
+            this->scene.add_object(std::move(newPlayer));
+        }
+
+        this->distribute_state();
+
+        // todo: verify it worked
 
     } else if (mode == 'J') {   // join mode
         // TODO:
