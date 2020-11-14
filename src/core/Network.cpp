@@ -15,14 +15,17 @@ SOCKET ReadFunctor::get_socket() {
     return this->socket;
 }
 
-void ReadFunctor::pop(std::string &data) {
+void ReadFunctor::pop(std::stringstream &data) {
     this->queue.pop(data);
 }
 
 void ReadFunctor::operator()() {
-    std::vector<char> buffer(SOCKET_BUFFER_SIZE);
-    while (recv(this->socket, &buffer[0], buffer.size(), 0) > 0) {
-        this->queue.push(&buffer[0]);
+    char buffer[SOCKET_BUFFER_SIZE];
+    int bytes;
+    while ((bytes = recv(this->socket, &buffer[0], SOCKET_BUFFER_SIZE, 0)) > 0) {
+        std::stringstream stream(std::ios::app | std::ios::out | std::ios::in | std::ios::binary);
+        stream.write(buffer, bytes);
+        this->queue.push(stream);
     }
 }
 
@@ -34,16 +37,16 @@ SOCKET WriteFunctor::get_socket() {
     return this->socket;
 }
 
-void WriteFunctor::push(const std::string &data) {
+void WriteFunctor::push(const std::stringstream &data) {
     this->queue.push(data);
 }
 
 void WriteFunctor::operator()() {
-    std::string buffer;
+    std::stringstream buffer(std::ios::app | std::ios::out | std::ios::in | std::ios::binary);
     do {
         //this->queue.wait_for_push();
         this->queue.pop(buffer);
-    } while (send(this->socket, buffer.c_str(), buffer.length(), 0) >= 0);
+    } while (send(this->socket, buffer.str().c_str(), buffer.str().length(), 0) >= 0);
 }
 
 AcceptConnectionFunctor::AcceptConnectionFunctor(const SOCKET& ephSock) {
@@ -330,7 +333,9 @@ void Network::read(const SOCKET &s, std::string &data) {
         data.clear();
     }
 
-    (*iofunctor).second.first.pop(data);
+    std::stringstream stream(std::ios::app | std::ios::out | std::ios::in | std::ios::binary);
+    (*iofunctor).second.first.pop(stream);
+    data.assign(stream.str());
 }
 
 void Network::write(const SOCKET &s, const std::string &data) {
@@ -340,7 +345,9 @@ void Network::write(const SOCKET &s, const std::string &data) {
         std::cerr << "\tcould not find socket" << std::endl;
     }
 
-    (*iofunctor).second.second.push(data);
+    std::stringstream stream(std::ios::app | std::ios::out | std::ios::in | std::ios::binary);
+    stream.str(data);
+    (*iofunctor).second.second.push(stream);
 }
 
 std::string Network::get_localhost() {
@@ -356,4 +363,38 @@ std::string Network::get_port_of_connected_socket(const SOCKET &socket) {
     }
 
     return std::to_string(ntohs(addr.sin_port));
+}
+
+bool Network::connect_to(const std::string& hostname, const std::string& port) {
+    addrinfo hints, *comAddr;
+    int status;
+    SOCKET sockfd;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    if ((status = getaddrinfo(hostname.c_str(), port.c_str(), &hints, &comAddr))) {
+        std::cerr << "getaddrinfo() failed with err: " << gai_strerror(status) << std::endl;
+        return false;
+    }
+
+    if ((sockfd = socket(comAddr->ai_family, comAddr->ai_socktype, comAddr->ai_protocol)) < 0) {
+        std::cerr << "socket() failed with err: " << gai_strerror(sockfd) << std::endl;
+        return false;
+    }
+
+    if ((status = connect(sockfd, comAddr->ai_addr, comAddr->ai_addrlen)) < 0) {
+        std::cerr << "connect() failed with err: " << gai_strerror(status) << std::endl;
+        return false;
+    }
+
+    this->connectedPorts.emplace_back(sockfd);
+    ReadFunctor newRead(sockfd);
+    WriteFunctor newWrite(sockfd);
+    this->IOFunctors.emplace(sockfd, std::make_pair(std::move(newRead), std::move(newWrite)));
+    std::thread newReadThread(std::ref(this->IOFunctors.at(sockfd).first));
+    std::thread newWriteThread(std::ref(this->IOFunctors.at(sockfd).second));
+    this->IOThreads.emplace(sockfd, std::make_pair(std::move(newReadThread), std::move(newWriteThread)));
+    return true;
 }

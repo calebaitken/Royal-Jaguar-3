@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <memory>
 #include <string>
 #include <list>
@@ -54,10 +55,10 @@ public:
 
     SOCKET get_socket();
 
-    void pop(std::string& data);
+    void pop(std::stringstream& data);
 
 private:
-    ThreadSafeQueue<std::string> queue;
+    ThreadSafeQueue<std::stringstream> queue;
     SOCKET socket;
 };
 
@@ -78,10 +79,10 @@ public:
 
     SOCKET get_socket();
 
-    void push(const std::string& data);
+    void push(const std::stringstream& data);
 
 private:
-    ThreadSafeQueue<std::string> queue;
+    ThreadSafeQueue<std::stringstream> queue;
     SOCKET socket;
 };
 
@@ -127,11 +128,13 @@ public:
     bool close_socket(SOCKET socket);
 
     // client functions
-    bool connect_to(std::string hostname, std::string port);
+    bool connect_to(const std::string& hostname, const std::string& port);
     bool disconnect();
 
     void write(const SOCKET& s, const std::string& data);
     void read(const SOCKET& s, std::string& data);
+    void write(const SOCKET& s, const std::stringstream& data);
+    void read(const SOCKET& s, std::stringstream& data);
 
     std::string get_localhost();
 

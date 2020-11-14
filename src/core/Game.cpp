@@ -17,19 +17,13 @@ void GameLoop::distribute_state() {
     // fixme: this is too complex
     std::stringstream stateStream(std::ios::app | std::ios::in | std::ios::out | std::ios::binary);
     this->scene.serialise(stateStream);
-    stateStream.seekg(0, std::ios_base::end);
-    int bufsize = stateStream.tellg();
-    stateStream.seekg(std::ios_base::beg);
-    char* buffer = (char*) calloc(bufsize, sizeof(char));
-    stateStream.read(buffer, bufsize);
     for (auto player : this->network.get_connected_sockets()) {
-        this->network.write(player, std::string(buffer));
+        this->network.write(player, stateStream.str());
     }
 }
 
 void GameLoop::setup_game() {
     char mode, cont;
-    int playerCount = 0;
 
     // get mode
     do {
@@ -46,11 +40,11 @@ void GameLoop::setup_game() {
         //      if connection found                 DONE
         //          verify, update game state       add verification to Network class, not here
         //          send to all other connections   DONE
-        //  create new game state
-        //  send game state to all players
-        //      send sizeof list of Objects
-        //      send list of objects
+        //  create new game state                   HALF-DONE
+        //  send game state to all players          DONE
         //  play_game
+
+        int playerCount = 0;
 
         // get the required number of players
         std::cout << "Enter the number of other players waiting to join: ";
@@ -74,14 +68,14 @@ void GameLoop::setup_game() {
             }
         }
 
-        // for each socket in network, send the IP & port to all other sockets
-        for (auto thisSocket : this->network.get_connected_sockets()) {
-            for (auto otherSocket : this->network.get_connected_sockets()) {
-                if (thisSocket != otherSocket) {
-                    this->network.write(otherSocket, this->network.get_IP_of_connected_socket(thisSocket) + ":" + this->network.get_port_of_connected_socket(thisSocket));
-                }
-            }
-        }
+//        // for each socket in network, send the IP & port to all other sockets
+//        for (auto thisSocket : this->network.get_connected_sockets()) {
+//            for (auto otherSocket : this->network.get_connected_sockets()) {
+//                if (thisSocket != otherSocket) {
+//                    this->network.write(otherSocket, this->network.get_IP_of_connected_socket(thisSocket) + ":" + this->network.get_port_of_connected_socket(thisSocket));
+//                }
+//            }
+//        }
 
         // generate game
         // for each player
@@ -92,16 +86,56 @@ void GameLoop::setup_game() {
             this->scene.add_object(std::move(newPlayer));
         }
 
+        // add yourself too hombre
+        std::unique_ptr<Player> self = std::make_unique<Player>();
+        this->scene.add_object(std::move(self));
+
+        // tell the world about it
         this->distribute_state();
 
         // todo: verify it worked
 
     } else if (mode == 'J') {   // join mode
-        // TODO:
-        //  connect to host
-        //  verify connection
+
+        std::string hostname;
+        std::string port;
+
+        // get hostname and port
+        do {
+            std::cout << "Enter the hostname: ";
+            std::cin >> hostname;
+            while (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "ERROR: re-enter hostname: ";
+                std::cin >> hostname;
+            }
+
+            std::cout << "Enter port: ";
+            std::cin >> port;
+            while (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "ERROR: re-enter hostname: ";
+                std::cin >> port;
+            }
+
+        } while (!this->network.connect_to(hostname, port));
+
+        //  todo: verify connection
+
         //  wait for game state
-        //      check special code
+        std::string buffer;
+        for (buffer.clear(); buffer.empty(); this->network.read(this->network.get_connected_sockets().at(0), buffer));
+        std::cout << buffer << std::endl;
+
+        // create game state
+        std::stringstream stream(std::ios::app | std::ios::out | std::ios::in | std::ios::binary);
+        stream.write(reinterpret_cast<const char*>(buffer.c_str()), buffer.length());
+        this->scene.reload_scene(stream);
+
+
+        // todo: check special code
         //      get number of objects
         //      create that many objects in scene
         //  play_game
